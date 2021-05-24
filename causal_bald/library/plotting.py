@@ -171,7 +171,7 @@ def acquisition_clean(
     )
     _ = data_axis.plot(
         ds_pool.x[idx].ravel(),
-        tau_mean[:, idx].mean(0),
+        tau_mean[:20, idx].mean(0),
         color=function_color,
         lw=2,
         ls="-",
@@ -180,7 +180,7 @@ def acquisition_clean(
     )
     _ = data_axis.plot(
         ds_pool.x[idx].ravel(),
-        tau_mean[:, idx].transpose(1, 0),
+        tau_mean[:20, idx].transpose(1, 0),
         color=function_color,
         lw=2,
         ls="-",
