@@ -13,6 +13,8 @@ from ignite import distributed
 from torch.utils import data
 from torch.utils import tensorboard
 
+from causal_bald.library import datasets
+
 
 class BaseModel(ABC):
     def __init__(self, job_dir, seed):
@@ -109,6 +111,11 @@ class PyTorchModel(BaseModel):
         train_loader = data.DataLoader(
             train_dataset,
             batch_size=self.batch_size,
+            sampler=datasets.RandomFixedLengthSampler(
+                train_dataset, 100 * self.batch_size
+            ),
+            drop_last=True,
+            pin_memory=True,
             num_workers=self.num_workers,
         )
         tune_loader = data.DataLoader(

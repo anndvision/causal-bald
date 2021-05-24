@@ -11,10 +11,10 @@ def tune_deep_kernel_gp(config):
         "kernel": tune.choice(["RBF", "Matern12", "Matern32", "Matern52"]),
         "num_inducing_points": tune.choice([20, 50, 100, 200]),
         "dim_hidden": tune.choice([100, 200]),
-        "depth": tune.choice([3]),
+        "depth": tune.choice([3, 4]),
         "negative_slope": tune.choice([-1.0, 0.0, 0.1, 0.2]),
         "dropout_rate": tune.choice([0.05, 0.1, 0.2, 0.3]),
-        "spectral_norm": tune.choice([0.95, 1.5, 3.0, 6.0, 12.0]),
+        "spectral_norm": tune.choice([0.95, 1.5, 3.0, 6.0, 12.0, 24.0]),
         "learning_rate": tune.choice([1e-3]),
         "batch_size": tune.choice([32, 64, 100, 200]),
     }
@@ -53,7 +53,7 @@ def tune_deep_kernel_gp(config):
             learning_rate=learning_rate,
             batch_size=batch_size,
             epochs=epochs,
-            patience=20,
+            patience=4,
             num_workers=0,
             seed=config.get("seed"),
         )
@@ -63,10 +63,10 @@ def tune_deep_kernel_gp(config):
         space,
         metric="mean_loss",
         mode="min",
-        n_initial_points=40,
+        n_initial_points=100,
     )
     scheduler = schedulers.AsyncHyperBandScheduler(
-        grace_period=200, max_t=config.get("epochs")
+        grace_period=100, max_t=config.get("epochs")
     )
     analysis = tune.run(
         run_or_experiment=func,

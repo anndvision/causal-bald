@@ -60,14 +60,15 @@ def tune(
         ignore_reinit_error=True,
     )
     gpu_per_trial = 0 if context.obj["n_gpu"] == 0 else gpu_per_trial
+    job_dir = Path(job_dir) / "tuning"
     context.obj.update(
         {
-            "job_dir": job_dir,
+            "job_dir": str(job_dir),
             "max_samples": max_samples,
             "gpu_per_trial": gpu_per_trial,
             "cpu_per_trial": cpu_per_trial,
             "seed": seed,
-            "tune": True,
+            "mode": "tune",
         }
     )
 
@@ -115,15 +116,109 @@ def train(
         ignore_reinit_error=True,
     )
     gpu_per_trial = 0 if context.obj["n_gpu"] == 0 else gpu_per_trial
+    job_dir = Path(job_dir) / "training"
     context.obj.update(
         {
-            "job_dir": job_dir,
+            "job_dir": str(job_dir),
             "num_trials": num_trials,
             "gpu_per_trial": gpu_per_trial,
             "cpu_per_trial": cpu_per_trial,
             "verbose": verbose,
             "seed": seed,
-            "tune": False,
+            "mode": "train",
+        }
+    )
+
+
+@cli.command("active-learning")
+@click.option(
+    "--job-dir",
+    type=str,
+    required=True,
+    help="location for writing checkpoints and results",
+)
+@click.option("--num-trials", default=1, type=int, help="number of trials, default=1")
+@click.option(
+    "--step-size",
+    default=10,
+    type=int,
+    help="number of data points to acquire at each step, default=10",
+)
+@click.option(
+    "--warm-start-size",
+    default=50,
+    type=int,
+    help="number of data points to acquire at start, default=50",
+)
+@click.option(
+    "--max-acquisitions",
+    default=100,
+    type=int,
+    help="number of acquisition steps, default=100",
+)
+@click.option(
+    "--acquisition-function",
+    default="mu-rho",
+    type=str,
+    help="acquistion function, default=mu-rho",
+)
+@click.option(
+    "--gpu-per-trial",
+    default=0.0,
+    type=float,
+    help="number of gpus for each trial, default=0",
+)
+@click.option(
+    "--cpu-per-trial",
+    default=1.0,
+    type=float,
+    help="number of cpus for each trial, default=1",
+)
+@click.option("--verbose", default=False, type=bool, help="verbosity default=False")
+@click.option(
+    "--seed",
+    default=1331,
+    type=int,
+    help="random number generator seed, default=1331",
+)
+@click.pass_context
+def active_learning(
+    context,
+    job_dir,
+    num_trials,
+    step_size,
+    warm_start_size,
+    max_acquisitions,
+    acquisition_function,
+    gpu_per_trial,
+    cpu_per_trial,
+    verbose,
+    seed,
+):
+    ray.init(
+        num_gpus=context.obj["n_gpu"],
+        dashboard_host="127.0.0.1",
+        ignore_reinit_error=True,
+    )
+    gpu_per_trial = 0 if context.obj["n_gpu"] == 0 else gpu_per_trial
+    job_dir = (
+        Path(job_dir)
+        / "active_learning"
+        / f"ss-{step_size}_ws-{warm_start_size}_ma-{max_acquisitions}_af-{acquisition_function}"
+    )
+    context.obj.update(
+        {
+            "job_dir": str(job_dir),
+            "num_trials": num_trials,
+            "step_size": step_size,
+            "warm_start_size": warm_start_size,
+            "max_acquisitions": max_acquisitions,
+            "acquisition_function": acquisition_function,
+            "gpu_per_trial": gpu_per_trial,
+            "cpu_per_trial": cpu_per_trial,
+            "verbose": verbose,
+            "seed": seed,
+            "mode": "active",
         }
     )
 
@@ -376,7 +471,7 @@ def ensemble(
     epochs,
     ensemble_size,
 ):
-    if context.obj["tune"]:
+    if context.obj["mode"] == "tune":
         context.obj.update(
             {
                 "dim_output": dim_output,
@@ -385,7 +480,7 @@ def ensemble(
             }
         )
         workflows.tuning.tune_tarnet(config=context.obj)
-    else:
+    elif context.obj["mode"] == "train":
         context.obj.update(
             {
                 "dim_hidden": dim_hidden,
@@ -479,7 +574,7 @@ def deep_kernel_gp(
     batch_size,
     epochs,
 ):
-    if context.obj["tune"]:
+    if context.obj["mode"] == "tune":
         context.obj.update(
             {
                 "epochs": epochs,
@@ -487,7 +582,7 @@ def deep_kernel_gp(
             }
         )
         workflows.tuning.tune_deep_kernel_gp(config=context.obj)
-    else:
+    elif context.obj["mode"] == "train":
         context.obj.update(
             {
                 "kernel": kernel,
@@ -509,13 +604,48 @@ def deep_kernel_gp(
             num_cpus=context.obj.get("cpu_per_trial"),
         )
         def trainer(**kwargs):
-            func = workflows.training.deep_kernel_gp_trainer(**kwargs)
+            func = workflows.training.train_deep_kernel_gp(**kwargs)
             return func
 
         results = []
         for trial in range(context.obj.get("num_trials")):
             results.append(
                 trainer.remote(
+                    config=context.obj,
+                    experiment_dir=context.obj.get("experiment_dir"),
+                    trial=trial,
+                )
+            )
+        ray.get(results)
+    elif context.obj["mode"] == "active":
+        context.obj.update(
+            {
+                "kernel": kernel,
+                "num_inducing_points": num_inducing_points,
+                "dim_hidden": dim_hidden,
+                "depth": depth,
+                "dim_output": dim_output,
+                "negative_slope": negative_slope,
+                "dropout_rate": dropout_rate,
+                "spectral_norm": spectral_norm,
+                "learning_rate": learning_rate,
+                "batch_size": batch_size,
+                "epochs": epochs,
+            }
+        )
+
+        @ray.remote(
+            num_gpus=context.obj.get("gpu_per_trial"),
+            num_cpus=context.obj.get("cpu_per_trial"),
+        )
+        def active_learner(**kwargs):
+            func = workflows.active_learning.active_deep_kernel_gp(**kwargs)
+            return func
+
+        results = []
+        for trial in range(context.obj.get("num_trials")):
+            results.append(
+                active_learner.remote(
                     config=context.obj,
                     experiment_dir=context.obj.get("experiment_dir"),
                     trial=trial,

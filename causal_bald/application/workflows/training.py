@@ -67,7 +67,7 @@ def tarnet_trainer(
     return -1
 
 
-def deep_kernel_gp_trainer(
+def train_deep_kernel_gp(
     config,
     experiment_dir,
     trial,
