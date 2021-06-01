@@ -5,7 +5,7 @@ setup(
     version="0.0.0",
     description="BALD for causal-effect estimation",
     long_description_content_type="text/markdown",
-    url="https://github.com/anndvision/causal-bald",
+    url="https://github.com/[anon]/causal-bald",
     license="Apache-2.0",
     packages=find_packages(),
     install_requires=[
