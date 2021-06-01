@@ -260,6 +260,47 @@ def evaluate(
     )
 
 
+@cli.command("hcmnist")
+@click.pass_context
+@click.option(
+    "--root",
+    type=str,
+    required=True,
+    help="location of dataset",
+)
+def hcmnist(
+    context,
+    root,
+):
+    job_dir = Path(context.obj.get("job_dir"))
+    dataset_name = "hcmnist"
+    experiment_dir = job_dir / dataset_name
+    context.obj.update(
+        {
+            "dataset_name": dataset_name,
+            "experiment_dir": str(experiment_dir),
+            "ds_train": {
+                "root": root,
+                "split": "train",
+                "mode": "mu",
+                "seed": context.obj.get("seed"),
+            },
+            "ds_valid": {
+                "root": root,
+                "split": "valid",
+                "mode": "mu",
+                "seed": context.obj.get("seed"),
+            },
+            "ds_test": {
+                "root": root,
+                "split": "test",
+                "mode": "mu",
+                "seed": context.obj.get("seed"),
+            },
+        }
+    )
+
+
 @cli.command("ihdp")
 @click.pass_context
 @click.option(
