@@ -60,7 +60,7 @@ class DeepKernelGP(core.PyTorchModel):
                 stem_kernel_stride=1,
                 stem_kernel_padding=2,
                 stem_pool=False,
-                output_activation=True,
+                activate_output=True,
             )
         else:
             self.encoder = nn.Sequential(
