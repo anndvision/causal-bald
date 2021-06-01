@@ -132,3 +132,6 @@ dmypy.json
 .idea/
 .vscode/
 experiments/
+slurm-*.out
+slurm.sh
+workspace.code-workspace

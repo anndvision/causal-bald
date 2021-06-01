@@ -28,18 +28,22 @@ class ActiveLearningDataset(IActiveLearningDataset):
 
     """
     This class can be used as follows:
-
     active_learning_data = ActiveLearningData(train_dataset)
     validation_data = active_learning_data.extract_dataset_from_pool(1000)
     initial_samples = active_learning_data.get_rand_pool_indices(20)
     active_learning_data.acquire(initial_samples)
     """
 
-    def __init__(self, dataset):
+    def __init__(self, dataset, start_indices=None):
         super().__init__()
         self.dataset = dataset
+
         self.training_mask = np.full((len(dataset),), False)
         self.pool_mask = np.full((len(dataset),), True)
+
+        if start_indices is not None:
+            self.training_mask[start_indices] = True
+            self.pool_mask[start_indices] = False
 
         self.training_dataset = data.Subset(self.dataset, None)
         self.pool_dataset = data.Subset(self.dataset, None)
@@ -50,13 +54,19 @@ class ActiveLearningDataset(IActiveLearningDataset):
         self.training_dataset.indices = np.nonzero(self.training_mask)[0]
         self.pool_dataset.indices = np.nonzero(self.pool_mask)[0]
 
-    def _remove_from_pool(self, pool_indices):
-        indices = self._get_dataset_indices(pool_indices)
+    @property
+    def acquired_indices(self):
+        return self.training_dataset.indices
 
-        self.pool_mask[indices] = False
-        self._update_indices()
+    def is_empty(self):
+        return len(self.pool_dataset) == 0
 
-    def _get_dataset_indices(self, pool_indices):
+    def get_random_pool_indices(self, size):
+        assert 0 <= size <= len(self.pool_dataset)
+        pool_indices = torch.randperm(len(self.pool_dataset))[:size]
+        return pool_indices
+
+    def get_dataset_indices(self, pool_indices):
         """Transform indices (in `pool_dataset`) to indices in the original `dataset`."""
         indices = self.pool_dataset.indices[pool_indices]
         return indices
@@ -64,18 +74,11 @@ class ActiveLearningDataset(IActiveLearningDataset):
     def acquire(self, pool_indices):
         """Acquire elements from the pool dataset into the training dataset.
         Add them to training dataset & remove them from the pool dataset."""
+        indices = self.get_dataset_indices(pool_indices)
 
-        self.training_mask[pool_indices] = True
-        self._remove_from_pool(pool_indices)
-
-    def is_empty(self):
-        return len(self.pool_dataset) == 0
-
-    def get_pool_dataset(self):
-        return self.pool_dataset
-
-    def get_training_dataset(self):
-        return self.training_dataset
+        self.training_mask[indices] = True
+        self.pool_mask[indices] = False
+        self._update_indices()
 
 
 class RandomFixedLengthSampler(data.Sampler):

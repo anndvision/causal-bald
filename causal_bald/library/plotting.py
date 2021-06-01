@@ -1,6 +1,7 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+import matplotlib.pyplot as plt
+
 
 sns.set(style="whitegrid", palette="colorblind")
 params = {
@@ -60,9 +61,13 @@ def dataset(
 
 
 def acquisition_clean(
-    ds_pool,
-    acquired_indices,
-    tau_mean,
+    x_pool,
+    t_pool,
+    x_acquired,
+    t_acquired,
+    tau_true,
+    tau_pred,
+    domain,
     legend_title=None,
     file_path=None,
 ):
@@ -71,24 +76,23 @@ def acquisition_clean(
         1,
         figsize=(482 / 72, 512 / 72),
         dpi=300,
-        gridspec_kw={"height_ratios": [1, 1, 2]},
+        gridspec_kw={"height_ratios": [1, 1, 3]},
     )
     density_axis = ax[0]
     acquire_axis = ax[1]
     data_axis = ax[2]
-    marker_size = 100
     control_color = "C0"
     treatment_color = "C4"
     function_color = "C9"
 
-    idx = np.argsort(ds_pool.x.ravel())
-    idx_0 = np.argsort(ds_pool.x[ds_pool.t == 0].ravel())
-    idx_1 = np.argsort(ds_pool.x[ds_pool.t == 1].ravel())
+    idx = np.argsort(x_pool.ravel())
+    idx_0 = np.argsort(x_pool[t_pool == 0].ravel())
+    idx_1 = np.argsort(x_pool[t_pool == 1].ravel())
 
     _ = density_axis.axvspan(-3.5, 2, facecolor=control_color, alpha=0.05)
     _ = density_axis.axvspan(-2, 3.5, facecolor=treatment_color, alpha=0.05)
     _ = sns.kdeplot(
-        x=ds_pool.x[ds_pool.t == 0][idx_0].ravel(),
+        x=x_pool[t_pool == 0][idx_0].ravel(),
         color=control_color,
         fill=True,
         alpha=0.5,
@@ -96,7 +100,7 @@ def acquisition_clean(
         ax=density_axis,
     )
     _ = sns.kdeplot(
-        x=ds_pool.x[ds_pool.t == 1][idx_1].ravel(),
+        x=x_pool[t_pool == 1][idx_1].ravel(),
         color=treatment_color,
         fill=True,
         alpha=0.5,
@@ -115,76 +119,31 @@ def acquisition_clean(
 
     _ = data_axis.axvspan(-3.5, 2, facecolor=control_color, alpha=0.05)
     _ = data_axis.axvspan(-2, 3.5, facecolor=treatment_color, alpha=0.05)
-    # _ = sns.scatterplot(
-    #     x=ds_pool.x[ds_pool.t == 0].ravel(),
-    #     y=ds_pool.y[ds_pool.t == 0],
-    #     color=control_color,
-    #     s=marker_size,
-    #     marker="X",
-    #     label="controlled",
-    #     ax=data_axis,
-    # )
-    # _ = sns.lineplot(
-    #     x=ds_pool.x[ds_pool.t == 0][idx_0].ravel(),
-    #     y=ds_pool.mu0[ds_pool.t == 0][idx_0],
-    #     color=control_color,
-    #     lw=5,
-    #     ax=data_axis,
-    # )
-    # _ = sns.scatterplot(
-    #     x=ds_pool.x[ds_pool.t == 1].ravel(),
-    #     y=ds_pool.y[ds_pool.t == 1],
-    #     color=treatment_color,
-    #     s=marker_size,
-    #     marker="o",
-    #     label="treated",
-    #     ax=data_axis,
-    # )
-    # _ = sns.lineplot(
-    #     x=ds_pool.x[ds_pool.t == 1][idx_1].ravel(),
-    #     y=ds_pool.mu1[ds_pool.t == 1][idx_1],
-    #     color=treatment_color,
-    #     lw=5,
-    #     ax=data_axis,
-    # )
-    # _ = sns.lineplot(
-    #     x=ds_pool.x[idx].ravel(),
-    #     y=tau_mean[:, idx].mean(0),
-    #     color="C0",
-    #     lw=5,
-    #     ax=data_axis,
-    # )
-    # _ = sns.lineplot(
-    #     x=ds_pool.x[idx].ravel(),
-    #     y=ds_pool.tau[idx].ravel(),
-    #     color="C1",
-    #     lw=5,
-    #     ax=data_axis,
-    # )
     _ = data_axis.plot(
-        ds_pool.x[idx].ravel(),
-        ds_pool.tau[idx].ravel(),
+        x_pool[idx].ravel(),
+        tau_true[idx].ravel(),
         color="black",
         lw=6,
         ls=":",
         label=r"$\tau(\mathbf{x})$",
     )
+    tau_mean = tau_pred.mean(0)
+    tau_2sigma = 2 * tau_pred.std(0)
     _ = data_axis.plot(
-        ds_pool.x[idx].ravel(),
-        tau_mean[:20, idx].mean(0),
+        domain,
+        tau_mean,
         color=function_color,
-        lw=2,
+        lw=4,
         ls="-",
         alpha=1.0,
         label=r"$\widehat{\tau}_{\mathbf{\omega}}(\mathbf{x})$, $\mathbf{\omega} \sim q(\mathbf{\Omega} \mid \mathcal{D})$",
     )
-    _ = data_axis.plot(
-        ds_pool.x[idx].ravel(),
-        tau_mean[:20, idx].transpose(1, 0),
+    _ = data_axis.fill_between(
+        x=domain,
+        y1=tau_mean - tau_2sigma,
+        y2=tau_mean + tau_2sigma,
         color=function_color,
-        lw=2,
-        ls="-",
-        alpha=0.5,
+        alpha=0.3,
     )
     _ = sns.despine()
     _ = data_axis.set_xlabel("covariate value: $\mathbf{x}$")
@@ -196,9 +155,6 @@ def acquisition_clean(
     _ = data_axis.set_xlim([-3.5, 3.5])
     _ = data_axis.set_ylim([-7, 12])
     _ = data_axis.legend(loc="upper left", title=legend_title)
-
-    x_acquired = ds_pool.x[acquired_indices]
-    t_acquired = ds_pool.t[acquired_indices]
 
     _ = acquire_axis.axvspan(-3.5, 2, facecolor=control_color, alpha=0.05)
     _ = acquire_axis.axvspan(-2, 3.5, facecolor=treatment_color, alpha=0.05)
@@ -270,7 +226,7 @@ def functions(
         domain,
         tau_mean.mean(0),
         color="C0",
-        lw=1,
+        lw=2,
         ls="-",
         alpha=1.0,
         label=r"$\widehat{\tau}_{\mathbf{\omega}}(\mathbf{x})$, $\mathbf{\omega} \sim q(\mathbf{\omega} \mid \mathcal{D})$",
@@ -281,7 +237,7 @@ def functions(
         color="C0",
         lw=1,
         ls="-",
-        alpha=0.5,
+        alpha=0.3,
     )
     _ = plt.xlabel(r"$\mathbf{x}$")
     _ = plt.ylim([-1.15, 1.6])
@@ -336,7 +292,7 @@ def acquisition(
         bald[t == 0][idx_0],
         color="C0",
         s=128,
-        alpha=0.05,
+        alpha=0.1,
         label=r"$\mu\mathrm{-BALD} \mid \mathrm{t} = 0$",
     )
     _ = plt.scatter(
@@ -344,7 +300,7 @@ def acquisition(
         bald[t == 1][idx_1],
         color="C1",
         s=128,
-        alpha=0.05,
+        alpha=0.1,
         label=r"$\mu\mathrm{-BALD} \mid \mathrm{t} = 1$",
     )
     _ = plt.xlabel(r"$\mathbf{x}$")
