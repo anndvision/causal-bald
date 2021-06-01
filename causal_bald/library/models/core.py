@@ -87,12 +87,6 @@ class PyTorchModel(BaseModel):
     def tune_step(self, trainer, batch):
         raise NotImplementedError()
 
-    def on_epoch_completed(self, trainer, train_loader, tune_loader):
-        raise NotImplementedError()
-
-    def on_training_completed(self, trainer, loader):
-        raise NotImplementedError()
-
     def preprocess(self, batch):
         inputs, targets = batch
         inputs = (
