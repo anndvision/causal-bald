@@ -268,13 +268,18 @@ def evaluate(
     required=True,
     help="location of dataset",
 )
-def hcmnist(
-    context,
-    root,
-):
+@click.option(
+    "--subsample",
+    type=float,
+    default=None,
+    help="Subsample the dataset",
+)
+def hcmnist(context, root, subsample):
     job_dir = Path(context.obj.get("job_dir"))
     dataset_name = "hcmnist"
     experiment_dir = job_dir / dataset_name
+    if subsample is not None:
+        subsample = {i: subsample for i in range(10)}
     context.obj.update(
         {
             "dataset_name": dataset_name,
@@ -284,18 +289,21 @@ def hcmnist(
                 "split": "train",
                 "mode": "mu",
                 "seed": context.obj.get("seed"),
+                "subsample": subsample,
             },
             "ds_valid": {
                 "root": root,
                 "split": "valid",
                 "mode": "mu",
                 "seed": context.obj.get("seed"),
+                "subsample": subsample,
             },
             "ds_test": {
                 "root": root,
                 "split": "test",
                 "mode": "mu",
                 "seed": context.obj.get("seed"),
+                "subsample": subsample,
             },
         }
     )
