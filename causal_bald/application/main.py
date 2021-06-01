@@ -163,6 +163,12 @@ def train(
     help="acquistion function, default=mu-rho",
 )
 @click.option(
+    "--temperature",
+    default=1.0,
+    type=float,
+    help="acquistion function tempurature, default=1.0",
+)
+@click.option(
     "--gpu-per-trial",
     default=0.0,
     type=float,
@@ -190,21 +196,22 @@ def active_learning(
     warm_start_size,
     max_acquisitions,
     acquisition_function,
+    temperature,
     gpu_per_trial,
     cpu_per_trial,
     verbose,
     seed,
 ):
-    ray.init(
-        num_gpus=context.obj["n_gpu"],
-        dashboard_host="127.0.0.1",
-        ignore_reinit_error=True,
-    )
+    # ray.init(
+    #     num_gpus=context.obj["n_gpu"],
+    #     dashboard_host="127.0.0.1",
+    #     ignore_reinit_error=True,
+    # )
     gpu_per_trial = 0 if context.obj["n_gpu"] == 0 else gpu_per_trial
     job_dir = (
         Path(job_dir)
         / "active_learning"
-        / f"ss-{step_size}_ws-{warm_start_size}_ma-{max_acquisitions}_af-{acquisition_function}"
+        / f"ss-{step_size}_ws-{warm_start_size}_ma-{max_acquisitions}_af-{acquisition_function}_temp-{temperature}"
     )
     context.obj.update(
         {
@@ -214,6 +221,7 @@ def active_learning(
             "warm_start_size": warm_start_size,
             "max_acquisitions": max_acquisitions,
             "acquisition_function": acquisition_function,
+            "temperature": temperature,
             "gpu_per_trial": gpu_per_trial,
             "cpu_per_trial": cpu_per_trial,
             "verbose": verbose,
@@ -249,10 +257,6 @@ def evaluate(
             "experiment_dir": experiment_dir,
             "output_dir": output_dir,
         }
-    )
-    workflows.evaluation.evaluate(
-        experiment_dir=Path(experiment_dir),
-        output_dir=Path(output_dir),
     )
 
 
@@ -383,7 +387,7 @@ def synthetic(
     experiment_dir = (
         job_dir
         / dataset_name
-        / f"ne-{num_examples}_be-{beta:.02f}_bi{bimodal}_si-{sigma:.02f}_dl-{domain_limit:.02f}"
+        / f"ne-{num_examples}_be-{beta:.02f}_bi-{bimodal}_si-{sigma:.02f}_dl-{domain_limit:.02f}"
     )
     context.obj.update(
         {
@@ -618,6 +622,20 @@ def deep_kernel_gp(
             )
         ray.get(results)
     elif context.obj["mode"] == "active":
+        ray.init(
+            num_gpus=context.obj["n_gpu"],
+            dashboard_host="127.0.0.1",
+            ignore_reinit_error=True,
+        )
+
+        @ray.remote(
+            num_gpus=context.obj.get("gpu_per_trial"),
+            num_cpus=context.obj.get("cpu_per_trial"),
+        )
+        def trainer(**kwargs):
+            func = workflows.active_learning.active_deep_kernel_gp(**kwargs)
+            return func
+
         context.obj.update(
             {
                 "kernel": kernel,
@@ -633,25 +651,70 @@ def deep_kernel_gp(
                 "epochs": epochs,
             }
         )
-
-        @ray.remote(
-            num_gpus=context.obj.get("gpu_per_trial"),
-            num_cpus=context.obj.get("cpu_per_trial"),
-        )
-        def active_learner(**kwargs):
-            func = workflows.active_learning.active_deep_kernel_gp(**kwargs)
-            return func
-
         results = []
         for trial in range(context.obj.get("num_trials")):
+            # workflows.active_learning.active_deep_kernel_gp(
+            #     config=context.obj,
+            #     experiment_dir=context.obj.get("experiment_dir"),
+            #     trial=trial,
+            # )
             results.append(
-                active_learner.remote(
+                trainer.remote(
                     config=context.obj,
                     experiment_dir=context.obj.get("experiment_dir"),
                     trial=trial,
                 )
             )
         ray.get(results)
+
+
+@cli.command("pehe")
+@click.pass_context
+def pehe(
+    context,
+):
+    workflows.evaluation.pehe(
+        experiment_dir=Path(context.obj["experiment_dir"]),
+        output_dir=Path(context.obj["output_dir"]),
+    )
+
+
+@cli.command("plot-distribution")
+@click.option(
+    "--acquisition-step",
+    type=int,
+    help="Plot acquired distribution and model for which acquisition step?",
+)
+@click.pass_context
+def plot_distribution(
+    context,
+    acquisition_step,
+):
+    workflows.evaluation.plot_distribution(
+        experiment_dir=Path(context.obj["experiment_dir"]),
+        output_dir=Path(context.obj["output_dir"]),
+        acquisition_step=acquisition_step,
+    )
+
+
+@cli.command("plot-convergence")
+@click.option(
+    "--methods",
+    "-m",
+    multiple=True,
+    type=str,
+    help="Which methods to plot",
+)
+@click.pass_context
+def plot_convergence(
+    context,
+    methods,
+):
+    workflows.evaluation.plot_convergence(
+        experiment_dir=Path(context.obj["experiment_dir"]),
+        output_dir=Path(context.obj["output_dir"]),
+        methods=methods,
+    )
 
 
 if __name__ == "__main__":

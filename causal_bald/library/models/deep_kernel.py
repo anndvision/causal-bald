@@ -115,8 +115,8 @@ class DeepKernelGP(core.PyTorchModel):
         self.optimizer = optim.Adam(
             params=[
                 {"params": self.encoder.parameters(), "lr": self.learning_rate},
-                {"params": self.gp.parameters(), "lr": 4 * self.learning_rate},
-                {"params": self.likelihood.parameters(), "lr": 4 * self.learning_rate},
+                {"params": self.gp.parameters(), "lr": 2 * self.learning_rate},
+                {"params": self.likelihood.parameters(), "lr": 2 * self.learning_rate},
             ],
             weight_decay=weight_decay,
         )
