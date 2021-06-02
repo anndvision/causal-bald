@@ -14,8 +14,8 @@ def tune_deep_kernel_gp(config):
         "depth": tune.choice([2, 3, 4]),
         "negative_slope": tune.choice([-1.0, 0.0, 0.1, 0.2]),
         "dropout_rate": tune.choice([0.05, 0.1, 0.2, 0.3]),
-        "spectral_norm": tune.choice([0.95, 1.5, 3.0, 6.0]),
-        "learning_rate": tune.choice([2e-4, 1e-3]),
+        "spectral_norm": tune.choice([0.95, 1.5, 3.0, 6.0, 12.0]),
+        "learning_rate": tune.choice([2e-4, 5e-4, 1e-3]),
         "batch_size": tune.choice([32, 64, 100, 200]),
     }
 

@@ -41,11 +41,9 @@ styles = {
 
 
 def plot_errorbars(experiment_dir, output_dir):
-    trial = 0
     for trial_dir in sorted(experiment_dir.iterdir()):
         if "trial-" not in str(trial_dir):
             continue
-        trial_key = f"trial-{trial:03d}"
         config_path = trial_dir / "config.json"
         with config_path.open(mode="r") as cp:
             config = json.load(cp)
@@ -152,7 +150,7 @@ def plot_distribution(experiment_dir, output_dir, acquisition_step):
     num_acquired = len(plot_args["t_acquired"]) // (trial)
     plot_args["domain"] = np.arange(-3.5, 3.5, 0.01)
     plot_args["legend_title"] = f"Acquired: {num_acquired}"
-    plot_args["file_path"] = experiment_dir / f"distribution.png"
+    plot_args["file_path"] = experiment_dir / "distribution.png"
     plotting.acquisition_clean(**plot_args)
 
 
