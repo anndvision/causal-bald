@@ -58,7 +58,6 @@ class TARNet(core.PyTorchModel):
         self.batch_size = batch_size
         self.best_loss = 1e7
         self.patience = patience
-        self.counter = 0
         self.optimizer = optim.Adam(
             params=self.network.parameters(),
             lr=self.learning_rate,
