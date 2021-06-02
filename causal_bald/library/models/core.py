@@ -3,7 +3,10 @@ import torch
 
 from abc import ABC
 
+from copy import deepcopy
+
 from ray import tune
+
 
 from ignite import utils
 from ignite import engine
@@ -55,6 +58,7 @@ class PyTorchModel(BaseModel):
         self.likelihood = None
         self.num_workers = num_workers
         self.device = distributed.device()
+        self.state = None
 
     @property
     def network(self):
@@ -154,7 +158,7 @@ class PyTorchModel(BaseModel):
         if tune_metrics["loss"] < self.best_loss:
             self.best_loss = tune_metrics["loss"]
             self.counter = 0
-            self.save()
+            self.update()
         if self.counter == self.patience:
             self.logger.info(
                 "Early Stopping: No improvement for {} epochs".format(self.patience)
@@ -162,6 +166,7 @@ class PyTorchModel(BaseModel):
             engine.terminate()
 
     def on_training_completed(self, engine, loader):
+        self.save()
         self.load()
         self.evaluator.run(loader)
         metric_values = self.evaluator.state.metrics
@@ -172,17 +177,19 @@ class PyTorchModel(BaseModel):
                 print("best {:<{justify}} {:<5f}".format(k, v, justify=justify))
                 continue
 
-    def save(self):
+    def update(self):
         if not tune.is_session_enabled():
-            state = {
-                "model": self.network.state_dict(),
-                "optimizer": self.optimizer.state_dict(),
+            self.best_state = {
+                "model": deepcopy(self.network.state_dict()),
+                "optimizer": deepcopy(self.optimizer.state_dict()),
                 "engine": self.trainer.state,
             }
             if self.likelihood is not None:
-                state["likelihood"] = self.likelihood.state_dict()
-            p = os.path.join(self.job_dir, "best_checkpoint.pt")
-            torch.save(state, p)
+                self.best_state["likelihood"] = deepcopy(self.likelihood.state_dict())
+
+    def save(self):
+        p = os.path.join(self.job_dir, "best_checkpoint.pt")
+        torch.save(self.best_state, p)
 
     def load(self):
         if tune.is_session_enabled():
