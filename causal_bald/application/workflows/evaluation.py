@@ -248,7 +248,7 @@ def predict_due(ds, job_dir, config):
         num_workers=0,
         seed=config.get("seed"),
     )
-    model.load(load_best=True)
+    model.load()
     # Evaluate PEHE on test set
     return model.predict_mus(ds, batch_size=len(ds))
 

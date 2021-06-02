@@ -2,7 +2,6 @@ import os
 import torch
 
 from abc import ABC
-from shutil import copyfile
 
 from ray import tune
 
@@ -27,12 +26,12 @@ class BaseModel(ABC):
             "Classes that inherit from BaseModel must implement train()"
         )
 
-    def save(self, is_best):
+    def save(self):
         raise NotImplementedError(
             "Classes that inherit from BaseModel must implement save()"
         )
 
-    def load(self, load_best):
+    def load(self):
         raise NotImplementedError(
             "Classes that inherit from BaseModel must implement load()"
         )
@@ -130,7 +129,6 @@ class PyTorchModel(BaseModel):
         self.trainer.add_event_handler(
             engine.Events.COMPLETED, self.on_training_completed, tune_loader
         )
-        self.load(load_best=False)
         # Train
         self.trainer.run(train_loader, max_epochs=self.epochs)
         return self.evaluator.state.metrics
@@ -153,10 +151,10 @@ class PyTorchModel(BaseModel):
             if type(v) == float:
                 print("tune {:<{justify}} {:<5f}".format(k, v, justify=justify))
                 continue
-        is_best = tune_metrics["loss"] < self.best_loss
-        self.best_loss = tune_metrics["loss"] if is_best else self.best_loss
-        self.counter = 0 if is_best else self.counter + 1
-        self.save(is_best=is_best)
+        if tune_metrics["loss"] < self.best_loss:
+            self.best_loss = tune_metrics["loss"]
+            self.counter = 0
+            self.save()
         if self.counter == self.patience:
             self.logger.info(
                 "Early Stopping: No improvement for {} epochs".format(self.patience)
@@ -164,7 +162,7 @@ class PyTorchModel(BaseModel):
             engine.terminate()
 
     def on_training_completed(self, engine, loader):
-        self.load(load_best=True)
+        self.load()
         self.evaluator.run(loader)
         metric_values = self.evaluator.state.metrics
         print("Metrics Epoch", engine.state.epoch)
@@ -174,7 +172,7 @@ class PyTorchModel(BaseModel):
                 print("best {:<{justify}} {:<5f}".format(k, v, justify=justify))
                 continue
 
-    def save(self, is_best):
+    def save(self):
         if not tune.is_session_enabled():
             state = {
                 "model": self.network.state_dict(),
@@ -183,17 +181,15 @@ class PyTorchModel(BaseModel):
             }
             if self.likelihood is not None:
                 state["likelihood"] = self.likelihood.state_dict()
-            p = os.path.join(self.job_dir, "checkpoint.pt")
+            p = os.path.join(self.job_dir, "best_checkpoint.pt")
             torch.save(state, p)
-            if is_best:
-                copyfile(p, os.path.join(self.job_dir, "best_checkpoint.pt"))
 
-    def load(self, load_best=False):
+    def load(self):
         if tune.is_session_enabled():
             with tune.checkpoint_dir(step=self.trainer.state.epoch) as checkpoint_dir:
                 p = os.path.join(checkpoint_dir, "checkpoint.pt")
         else:
-            file_name = "best_checkpoint.pt" if load_best else "checkpoint.pt"
+            file_name = "best_checkpoint.pt"
             p = os.path.join(self.job_dir, file_name)
         if not os.path.exists(p):
             self.logger.info(
