@@ -7,7 +7,6 @@ from copy import deepcopy
 
 from ray import tune
 
-
 from ignite import utils
 from ignite import engine
 from ignite import distributed
