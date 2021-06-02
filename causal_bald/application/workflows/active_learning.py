@@ -78,7 +78,7 @@ def active_deep_kernel_gp(config, experiment_dir, trial):
             config_pi_valid["mode"] = "pi"
             ds_pi_valid = datasets.DATASETS.get(dataset_name)(**config_pi_valid)
             pi_model.fit(ds_pi_train, ds_pi_valid)
-        pi_model.load(load_best=True)
+        pi_model.load()
         pt = pi_model.predict_mean(ds_pi_train).ravel()
     else:
         pt = None
@@ -114,7 +114,7 @@ def active_deep_kernel_gp(config, experiment_dir, trial):
                 num_workers=0,
                 seed=config.get("seed"),
             )
-            model.load(load_best=True)
+            model.load()
 
             mu_0, mu_1 = model.predict_mus(ds_active.dataset)
 
