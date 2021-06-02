@@ -58,7 +58,7 @@ class PyTorchModel(BaseModel):
         self.likelihood = None
         self.num_workers = num_workers
         self.device = distributed.device()
-        self.state = None
+        self.best_state = None
 
     @property
     def network(self):
