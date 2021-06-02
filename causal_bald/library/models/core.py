@@ -158,6 +158,8 @@ class PyTorchModel(BaseModel):
             self.best_loss = tune_metrics["loss"]
             self.counter = 0
             self.update()
+        else:
+            self.counter += 1
         if self.counter == self.patience:
             self.logger.info(
                 "Early Stopping: No improvement for {} epochs".format(self.patience)
