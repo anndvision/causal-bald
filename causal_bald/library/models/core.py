@@ -58,6 +58,7 @@ class PyTorchModel(BaseModel):
         self.num_workers = num_workers
         self.device = distributed.device()
         self.best_state = None
+        self.counter = 0
 
     @property
     def network(self):

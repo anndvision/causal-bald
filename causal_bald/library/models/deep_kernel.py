@@ -88,7 +88,6 @@ class DeepKernelGP(core.PyTorchModel):
         self.batch_size = batch_size
         self.best_loss = 1e7
         self.patience = patience
-        self.counter = 0
         (
             initial_inducing_points,
             initial_lengthscale,
