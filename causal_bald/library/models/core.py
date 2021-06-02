@@ -1,9 +1,8 @@
 import os
+import copy
 import torch
 
 from abc import ABC
-
-from copy import deepcopy
 
 from ray import tune
 
@@ -182,12 +181,14 @@ class PyTorchModel(BaseModel):
     def update(self):
         if not tune.is_session_enabled():
             self.best_state = {
-                "model": deepcopy(self.network.state_dict()),
-                "optimizer": deepcopy(self.optimizer.state_dict()),
-                "engine": self.trainer.state,
+                "model": copy.deepcopy(self.network.state_dict()),
+                "optimizer": copy.deepcopy(self.optimizer.state_dict()),
+                "engine": copy.copy(self.trainer.state),
             }
             if self.likelihood is not None:
-                self.best_state["likelihood"] = deepcopy(self.likelihood.state_dict())
+                self.best_state["likelihood"] = copy.deepcopy(
+                    self.likelihood.state_dict()
+                )
 
     def save(self):
         p = os.path.join(self.job_dir, "best_checkpoint.pt")
