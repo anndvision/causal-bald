@@ -766,5 +766,16 @@ def plot_convergence(
     )
 
 
+@cli.command("plot-errorbars")
+@click.pass_context
+def plot_errorbars(
+    context,
+):
+    workflows.evaluation.plot_errorbars(
+        experiment_dir=Path(context.obj["experiment_dir"]),
+        output_dir=Path(context.obj["output_dir"]),
+    )
+
+
 if __name__ == "__main__":
     cli()
