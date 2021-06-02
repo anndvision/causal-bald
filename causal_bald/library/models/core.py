@@ -175,7 +175,7 @@ class PyTorchModel(BaseModel):
                 continue
 
     def save(self, is_best):
-        if not tune.is_session_enabled():
+        if not tune.is_session_enabled() and is_best:
             state = {
                 "model": self.network.state_dict(),
                 "optimizer": self.optimizer.state_dict(),
@@ -183,10 +183,8 @@ class PyTorchModel(BaseModel):
             }
             if self.likelihood is not None:
                 state["likelihood"] = self.likelihood.state_dict()
-            p = os.path.join(self.job_dir, "checkpoint.pt")
+            p = os.path.join(self.job_dir, "best_checkpoint.pt")
             torch.save(state, p)
-            if is_best:
-                copyfile(p, os.path.join(self.job_dir, "best_checkpoint.pt"))
 
     def load(self, load_best=False):
         if tune.is_session_enabled():
