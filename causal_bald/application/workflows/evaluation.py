@@ -39,7 +39,33 @@ styles = {
     "sundin": ("C1", "-", "s"),
 }
 
-_MAX_TRIALS = 139
+
+def plot_errorbars(experiment_dir, output_dir):
+    trial = 0
+    for trial_dir in sorted(experiment_dir.iterdir()):
+        if "trial-" not in str(trial_dir):
+            continue
+        trial_key = f"trial-{trial:03d}"
+        config_path = trial_dir / "config.json"
+        with config_path.open(mode="r") as cp:
+            config = json.load(cp)
+
+        dataset_name = config.get("dataset_name")
+
+        ds_test = datasets.DATASETS.get(dataset_name)(**config.get("ds_test"))
+        model_dir = trial_dir / "checkpoints"
+        mu_0, mu_1 = predict_due(ds=ds_test, job_dir=model_dir, config=config)
+        tau_pred = (mu_1 - mu_0) * ds_test.y_std[0]
+        tau_true = ds_test.mu1 - ds_test.mu0
+        plot_path = trial_dir / "scatter.png"
+        plotting.errorbar(
+            x=tau_true,
+            y=tau_pred.mean(0),
+            y_err=2 * tau_pred.std(0),
+            x_label="True CATE",
+            y_label="Predicted CATE",
+            file_path=plot_path,
+        )
 
 
 def plot_convergence(experiment_dir, output_dir, methods):
@@ -89,8 +115,6 @@ def plot_distribution(experiment_dir, output_dir, acquisition_step):
     for trial_dir in sorted(experiment_dir.iterdir()):
         if "trial-" not in str(trial_dir):
             continue
-        if trial == _MAX_TRIALS:
-            break
         config_path = trial_dir / "config.json"
         with config_path.open(mode="r") as cp:
             config = json.load(cp)
@@ -138,8 +162,6 @@ def pehe(experiment_dir, output_dir):
     for trial_dir in sorted(experiment_dir.iterdir()):
         if "trial-" not in str(trial_dir):
             continue
-        if trial == _MAX_TRIALS:
-            break
         trial_key = f"trial-{trial:03d}"
         config_path = trial_dir / "config.json"
         with config_path.open(mode="r") as cp:
