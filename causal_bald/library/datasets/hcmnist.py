@@ -16,7 +16,7 @@ class HCMNIST(datasets.MNIST):
         mode: str = "mu",
         beta: float = 2.0,
         sigma_y: float = 0.01,
-        domain: float = 2.5,
+        domain: float = 3.0,
         subsample: dict = None,
         seed: int = 1331,
         transform: typing.Optional[typing.Callable] = None,
