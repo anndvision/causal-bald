@@ -8,6 +8,7 @@ from torch.utils import data
 
 from causal_bald.library.models import core
 from causal_bald.library.modules import dense
+from causal_bald.library.modules import convolution
 from causal_bald.library.modules import variational
 
 
@@ -40,8 +41,23 @@ class NeuralNetwork(core.PyTorchModel):
             seed=seed,
             num_workers=num_workers,
         )
-        self.network = nn.Sequential(
-            dense.NeuralNetwork(
+        encoder = (
+            convolution.ResNet(
+                dim_input=dim_input,
+                layers=[2] * depth,
+                base_width=dim_hidden // 8,
+                negative_slope=negative_slope,
+                dropout_rate=dropout_rate,
+                batch_norm=batch_norm,
+                spectral_norm=spectral_norm,
+                stem_kernel_size=5,
+                stem_kernel_stride=1,
+                stem_kernel_padding=2,
+                stem_pool=False,
+                activate_output=True,
+            )
+            if isinstance(dim_input, list)
+            else dense.NeuralNetwork(
                 architecture=architecture,
                 dim_input=dim_input,
                 dim_hidden=dim_hidden,
@@ -51,9 +67,12 @@ class NeuralNetwork(core.PyTorchModel):
                 dropout_rate=dropout_rate,
                 spectral_norm=spectral_norm,
                 activate_output=True,
-            ),
+            )
+        )
+        self.network = nn.Sequential(
+            encoder,
             variational.Categorical(
-                dim_input=dim_hidden,
+                dim_input=encoder.dim_output,
                 dim_output=dim_output,
             ),
         )
