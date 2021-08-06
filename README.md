@@ -1,6 +1,7 @@
 # causal-bald
 
 ## Installation
+
 ```.sh
 $ git clone git@github.com:[anon]/causal-bald.git
 $ cd causal-bald
@@ -13,7 +14,9 @@ $ pip install -e .
 ```
 
 ## Example: Active learning IHDP
+
 ### Active learning loop
+
 ```.sh
 causal-bald \
     active-learning \
@@ -29,8 +32,11 @@ causal-bald \
         --root assets/ \
     deep-kernel-gp
 ```
+
 ### Evaluation
+
 Evaluate PEHE at each acquisition step
+
 ```.sh
 causal-bald \
     evaluate \
@@ -38,7 +44,9 @@ causal-bald \
         --output-dir experiments/ihdp/ \
     pehe
 ```
+
 Plot results
+
 ```.sh
 causal-bald \
     evaluate \
