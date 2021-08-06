@@ -2,11 +2,12 @@ from ray import tune
 from ray.tune import schedulers
 from ray.tune.suggest import hyperopt
 
-from causal_bald.library import models
 from causal_bald.library import datasets
 
+from causal_bald.application.workflows import utils
 
-def tune_deep_kernel_gp(config):
+
+def deep_kernel_gp_tuner(config):
     space = {
         "kernel": tune.choice(["RBF", "Matern12", "Matern32", "Matern52"]),
         "num_inducing_points": tune.choice([20, 50, 100, 200]),
@@ -24,46 +25,16 @@ def tune_deep_kernel_gp(config):
         ds_train = datasets.DATASETS.get(dataset_name)(**config.get("ds_train"))
         ds_valid = datasets.DATASETS.get(dataset_name)(**config.get("ds_valid"))
 
-        kernel = config.get("kernel")
-        num_inducing_points = config.get("num_inducing_points")
-        dim_hidden = config.get("dim_hidden")
-        dim_output = config.get("dim_output")
-        depth = config.get("depth")
-        negative_slope = config.get("negative_slope")
-        dropout_rate = config.get("dropout_rate")
-        spectral_norm = config.get("spectral_norm")
-        learning_rate = config.get("learning_rate")
-        batch_size = config.get("batch_size")
-        epochs = config.get("epochs")
-        outcome_model = models.DeepKernelGP(
+        utils.TRAIN_FUNCTIONS["deep_kernel_gp"](
+            ds_train=ds_train,
+            ds_valid=ds_valid,
             job_dir=None,
-            kernel=kernel,
-            num_inducing_points=num_inducing_points,
-            inducing_point_dataset=ds_train,
-            architecture="resnet",
+            config=config,
             dim_input=ds_train.dim_input,
-            dim_hidden=dim_hidden,
-            dim_output=dim_output,
-            depth=depth,
-            negative_slope=negative_slope,
-            batch_norm=False,
-            spectral_norm=spectral_norm,
-            dropout_rate=dropout_rate,
-            weight_decay=(0.5 * (1 - dropout_rate)) / len(ds_train),
-            learning_rate=learning_rate,
-            batch_size=batch_size,
-            epochs=epochs,
-            patience=4,
-            num_workers=0,
-            seed=config.get("seed"),
         )
-        _ = outcome_model.fit(ds_train, ds_valid)
 
     algorithm = hyperopt.HyperOptSearch(
-        space,
-        metric="mean_loss",
-        mode="min",
-        n_initial_points=100,
+        space, metric="mean_loss", mode="min", n_initial_points=100,
     )
     scheduler = schedulers.AsyncHyperBandScheduler(
         grace_period=100, max_t=config.get("epochs")
@@ -86,7 +57,7 @@ def tune_deep_kernel_gp(config):
     print("Best hyperparameters found were: ", analysis.best_config)
 
 
-def tune_tarnet(config):
+def tarnet_tuner(config):
     space = {
         "dim_hidden": tune.choice([200]),
         "depth": tune.choice([3]),
@@ -102,45 +73,19 @@ def tune_tarnet(config):
         ds_train = datasets.DATASETS.get(dataset_name)(**config.get("ds_train"))
         ds_valid = datasets.DATASETS.get(dataset_name)(**config.get("ds_valid"))
 
-        dim_hidden = config.get("dim_hidden")
-        dim_output = config.get("dim_output")
-        depth = config.get("depth")
-        negative_slope = config.get("negative_slope")
-        dropout_rate = config.get("dropout_rate")
-        spectral_norm = config.get("spectral_norm")
-        learning_rate = config.get("learning_rate")
-        batch_size = config.get("batch_size")
-        epochs = config.get("epochs")
-
-        outcome_model = models.TARNet(
+        utils.TRAIN_FUNCTIONS["ensemble"](
+            ds_train=ds_train,
+            ds_valid=ds_valid,
             job_dir=None,
-            architecture="resnet",
+            config=config,
             dim_input=ds_train.dim_input,
-            dim_hidden=dim_hidden,
-            dim_output=dim_output,
-            depth=depth,
-            negative_slope=negative_slope,
-            batch_norm=False,
-            spectral_norm=spectral_norm,
-            dropout_rate=dropout_rate,
-            weight_decay=(0.5 * (1 - dropout_rate)) / len(ds_train),
-            learning_rate=learning_rate,
-            batch_size=batch_size,
-            epochs=epochs,
-            patience=20,
-            num_workers=0,
-            seed=config.get("seed"),
         )
-        _ = outcome_model.fit(ds_train, ds_valid)
 
     algorithm = hyperopt.HyperOptSearch(
-        space,
-        metric="mean_loss",
-        mode="min",
-        n_initial_points=20,
+        space, metric="mean_loss", mode="min", n_initial_points=100,
     )
     scheduler = schedulers.AsyncHyperBandScheduler(
-        grace_period=20, max_t=config.get("epochs")
+        grace_period=100, max_t=config.get("epochs")
     )
     analysis = tune.run(
         run_or_experiment=func,

@@ -40,19 +40,11 @@ def cli(context):
     help="number of cpus for each trial, default=1",
 )
 @click.option(
-    "--seed",
-    default=1331,
-    type=int,
-    help="random number generator seed, default=1331",
+    "--seed", default=1331, type=int, help="random number generator seed, default=1331",
 )
 @click.pass_context
 def tune(
-    context,
-    job_dir,
-    max_samples,
-    gpu_per_trial,
-    cpu_per_trial,
-    seed,
+    context, job_dir, max_samples, gpu_per_trial, cpu_per_trial, seed,
 ):
     ray.init(
         num_gpus=context.obj["n_gpu"],
@@ -95,20 +87,11 @@ def tune(
 )
 @click.option("--verbose", default=False, type=bool, help="verbosity default=False")
 @click.option(
-    "--seed",
-    default=1331,
-    type=int,
-    help="random number generator seed, default=1331",
+    "--seed", default=1331, type=int, help="random number generator seed, default=1331",
 )
 @click.pass_context
 def train(
-    context,
-    job_dir,
-    num_trials,
-    gpu_per_trial,
-    cpu_per_trial,
-    verbose,
-    seed,
+    context, job_dir, num_trials, gpu_per_trial, cpu_per_trial, verbose, seed,
 ):
     ray.init(
         num_gpus=context.obj["n_gpu"],
@@ -182,10 +165,7 @@ def train(
 )
 @click.option("--verbose", default=False, type=bool, help="verbosity default=False")
 @click.option(
-    "--seed",
-    default=1331,
-    type=int,
-    help="random number generator seed, default=1331",
+    "--seed", default=1331, type=int, help="random number generator seed, default=1331",
 )
 @click.pass_context
 def active_learning(
@@ -202,11 +182,11 @@ def active_learning(
     verbose,
     seed,
 ):
-    # ray.init(
-    #     num_gpus=context.obj["n_gpu"],
-    #     dashboard_host="127.0.0.1",
-    #     ignore_reinit_error=True,
-    # )
+    ray.init(
+        num_gpus=context.obj["n_gpu"],
+        dashboard_host="127.0.0.1",
+        ignore_reinit_error=True,
+    )
     gpu_per_trial = 0 if context.obj["n_gpu"] == 0 else gpu_per_trial
     job_dir = (
         Path(job_dir)
@@ -247,32 +227,21 @@ def active_learning(
 )
 @click.pass_context
 def evaluate(
-    context,
-    experiment_dir,
-    output_dir,
+    context, experiment_dir, output_dir,
 ):
     output_dir = experiment_dir if output_dir is None else output_dir
     context.obj.update(
-        {
-            "experiment_dir": experiment_dir,
-            "output_dir": output_dir,
-        }
+        {"experiment_dir": experiment_dir, "output_dir": output_dir,}
     )
 
 
 @cli.command("hcmnist")
 @click.pass_context
 @click.option(
-    "--root",
-    type=str,
-    required=True,
-    help="location of dataset",
+    "--root", type=str, required=True, help="location of dataset",
 )
 @click.option(
-    "--subsample",
-    type=float,
-    default=None,
-    help="Subsample the dataset",
+    "--subsample", type=float, default=None, help="Subsample the dataset",
 )
 def hcmnist(context, root, subsample):
     job_dir = Path(context.obj.get("job_dir"))
@@ -312,14 +281,10 @@ def hcmnist(context, root, subsample):
 @cli.command("ihdp")
 @click.pass_context
 @click.option(
-    "--root",
-    type=str,
-    required=True,
-    help="location of dataset",
+    "--root", type=str, required=True, help="location of dataset",
 )
 def ihdp(
-    context,
-    root,
+    context, root,
 ):
     job_dir = Path(context.obj.get("job_dir"))
     dataset_name = "ihdp"
@@ -353,14 +318,10 @@ def ihdp(
 @cli.command("ihdp-cov")
 @click.pass_context
 @click.option(
-    "--root",
-    type=str,
-    required=True,
-    help="location of dataset",
+    "--root", type=str, required=True, help="location of dataset",
 )
 def ihdp_cov(
-    context,
-    root,
+    context, root,
 ):
     job_dir = Path(context.obj.get("job_dir"))
     dataset_name = "ihdp-cov"
@@ -424,12 +385,7 @@ def ihdp_cov(
     help="Domain of x is [-domain_limit, domain_limit], default=2.5",
 )
 def synthetic(
-    context,
-    num_examples,
-    beta,
-    bimodal,
-    sigma,
-    domain_limit,
+    context, num_examples, beta, bimodal, sigma, domain_limit,
 ):
     job_dir = Path(context.obj.get("job_dir"))
     dataset_name = "synthetic"
@@ -524,51 +480,70 @@ def ensemble(
     epochs,
     ensemble_size,
 ):
+    context.obj.update(
+        {
+            "model_name": "ensemble",
+            "dim_output": dim_output,
+            "epochs": epochs,
+            "ensemble_size": ensemble_size,
+        }
+    )
     if context.obj["mode"] == "tune":
-        context.obj.update(
-            {
-                "dim_output": dim_output,
-                "epochs": epochs,
-                "ensemble_size": ensemble_size,
-            }
-        )
-        workflows.tuning.tune_tarnet(config=context.obj)
-    elif context.obj["mode"] == "train":
+        workflows.tuning.tarnet_tuner(config=context.obj)
+    else:
         context.obj.update(
             {
                 "dim_hidden": dim_hidden,
                 "depth": depth,
-                "dim_output": dim_output,
                 "negative_slope": negative_slope,
                 "dropout_rate": dropout_rate,
                 "spectral_norm": spectral_norm,
                 "learning_rate": learning_rate,
                 "batch_size": batch_size,
-                "epochs": epochs,
-                "ensemble_size": ensemble_size,
             }
         )
+        if context.obj["mode"] == "train":
 
-        @ray.remote(
-            num_gpus=context.obj.get("gpu_per_trial"),
-            num_cpus=context.obj.get("cpu_per_trial"),
-        )
-        def trainer(**kwargs):
-            func = workflows.training.tarnet_trainer(**kwargs)
-            return func
+            @ray.remote(
+                num_gpus=context.obj.get("gpu_per_trial"),
+                num_cpus=context.obj.get("cpu_per_trial"),
+            )
+            def trainer(**kwargs):
+                func = workflows.training.trainer(**kwargs)
+                return func
 
-        results = []
-        for trial in range(context.obj.get("num_trials")):
-            for ensemble_id in range(ensemble_size):
+            results = []
+            for trial in range(context.obj.get("num_trials")):
                 results.append(
                     trainer.remote(
                         config=context.obj,
                         experiment_dir=context.obj.get("experiment_dir"),
                         trial=trial,
-                        ensemble_id=ensemble_id,
+                        model_name=context.obj.get("model_name"),
                     )
                 )
-        ray.get(results)
+            ray.get(results)
+        elif context.obj["mode"] == "active":
+
+            @ray.remote(
+                num_gpus=context.obj.get("gpu_per_trial"),
+                num_cpus=context.obj.get("cpu_per_trial"),
+            )
+            def trainer(**kwargs):
+                func = workflows.active_learning.active_learner(**kwargs)
+                return func
+
+            results = []
+            for trial in range(context.obj.get("num_trials")):
+                results.append(
+                    trainer.remote(
+                        model_name="ensemble",
+                        config=context.obj,
+                        experiment_dir=context.obj.get("experiment_dir"),
+                        trial=trial,
+                    )
+                )
+            ray.get(results)
 
 
 @cli.command("deep-kernel-gp")
@@ -627,15 +602,12 @@ def deep_kernel_gp(
     batch_size,
     epochs,
 ):
+    context.obj.update(
+        {"model_name": "deep_kernel_gp", "dim_output": dim_output, "epochs": epochs,}
+    )
     if context.obj["mode"] == "tune":
-        context.obj.update(
-            {
-                "epochs": epochs,
-                "dim_output": dim_output,
-            }
-        )
-        workflows.tuning.tune_deep_kernel_gp(config=context.obj)
-    elif context.obj["mode"] == "train":
+        workflows.tuning.deep_kernel_gp_tuner(config=context.obj)
+    else:
         context.obj.update(
             {
                 "kernel": kernel,
@@ -651,77 +623,53 @@ def deep_kernel_gp(
                 "epochs": epochs,
             }
         )
+        if context.obj["mode"] == "train":
 
-        @ray.remote(
-            num_gpus=context.obj.get("gpu_per_trial"),
-            num_cpus=context.obj.get("cpu_per_trial"),
-        )
-        def trainer(**kwargs):
-            func = workflows.training.train_deep_kernel_gp(**kwargs)
-            return func
-
-        results = []
-        for trial in range(context.obj.get("num_trials")):
-            results.append(
-                trainer.remote(
-                    config=context.obj,
-                    experiment_dir=context.obj.get("experiment_dir"),
-                    trial=trial,
-                )
+            @ray.remote(
+                num_gpus=context.obj.get("gpu_per_trial"),
+                num_cpus=context.obj.get("cpu_per_trial"),
             )
-        ray.get(results)
-    elif context.obj["mode"] == "active":
-        ray.init(
-            num_gpus=context.obj["n_gpu"],
-            dashboard_host="127.0.0.1",
-            ignore_reinit_error=True,
-        )
+            def trainer(**kwargs):
+                func = workflows.training.trainer(**kwargs)
+                return func
 
-        @ray.remote(
-            num_gpus=context.obj.get("gpu_per_trial"),
-            num_cpus=context.obj.get("cpu_per_trial"),
-        )
-        def trainer(**kwargs):
-            func = workflows.active_learning.active_deep_kernel_gp(**kwargs)
-            return func
-
-        context.obj.update(
-            {
-                "kernel": kernel,
-                "num_inducing_points": num_inducing_points,
-                "dim_hidden": dim_hidden,
-                "depth": depth,
-                "dim_output": dim_output,
-                "negative_slope": negative_slope,
-                "dropout_rate": dropout_rate,
-                "spectral_norm": spectral_norm,
-                "learning_rate": learning_rate,
-                "batch_size": batch_size,
-                "epochs": epochs,
-            }
-        )
-        results = []
-        for trial in range(context.obj.get("num_trials")):
-            # workflows.active_learning.active_deep_kernel_gp(
-            #     config=context.obj,
-            #     experiment_dir=context.obj.get("experiment_dir"),
-            #     trial=trial,
-            # )
-            results.append(
-                trainer.remote(
-                    config=context.obj,
-                    experiment_dir=context.obj.get("experiment_dir"),
-                    trial=trial,
+            results = []
+            for trial in range(context.obj.get("num_trials")):
+                results.append(
+                    trainer.remote(
+                        config=context.obj,
+                        experiment_dir=context.obj.get("experiment_dir"),
+                        trial=trial,
+                        model_name=context.obj.get("model_name"),
+                    )
                 )
+            ray.get(results)
+        elif context.obj["mode"] == "active":
+
+            @ray.remote(
+                num_gpus=context.obj.get("gpu_per_trial"),
+                num_cpus=context.obj.get("cpu_per_trial"),
             )
-        ray.get(results)
+            def trainer(**kwargs):
+                func = workflows.active_learning.active_learner(**kwargs)
+                return func
+
+            results = []
+            for trial in range(context.obj.get("num_trials")):
+                results.append(
+                    trainer.remote(
+                        model_name="deep_kernel_gp",
+                        config=context.obj,
+                        experiment_dir=context.obj.get("experiment_dir"),
+                        trial=trial,
+                    )
+                )
+            ray.get(results)
 
 
 @cli.command("pehe")
 @click.pass_context
-def pehe(
-    context,
-):
+def pehe(context,):
     workflows.evaluation.pehe(
         experiment_dir=Path(context.obj["experiment_dir"]),
         output_dir=Path(context.obj["output_dir"]),
@@ -736,44 +684,32 @@ def pehe(
 )
 @click.pass_context
 def plot_distribution(
-    context,
-    acquisition_step,
+    context, acquisition_step,
 ):
     workflows.evaluation.plot_distribution(
         experiment_dir=Path(context.obj["experiment_dir"]),
-        output_dir=Path(context.obj["output_dir"]),
         acquisition_step=acquisition_step,
     )
 
 
 @cli.command("plot-convergence")
 @click.option(
-    "--methods",
-    "-m",
-    multiple=True,
-    type=str,
-    help="Which methods to plot",
+    "--methods", "-m", multiple=True, type=str, help="Which methods to plot",
 )
 @click.pass_context
 def plot_convergence(
-    context,
-    methods,
+    context, methods,
 ):
     workflows.evaluation.plot_convergence(
-        experiment_dir=Path(context.obj["experiment_dir"]),
-        output_dir=Path(context.obj["output_dir"]),
-        methods=methods,
+        experiment_dir=Path(context.obj["experiment_dir"]), methods=methods,
     )
 
 
 @cli.command("plot-errorbars")
 @click.pass_context
-def plot_errorbars(
-    context,
-):
+def plot_errorbars(context,):
     workflows.evaluation.plot_errorbars(
         experiment_dir=Path(context.obj["experiment_dir"]),
-        output_dir=Path(context.obj["output_dir"]),
     )
 
 
