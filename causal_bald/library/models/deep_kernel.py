@@ -15,8 +15,8 @@ from causal_bald.library.modules import convolution
 from causal_bald.library.modules import gaussian_process
 
 _LIKELIHOODS = {
-    "gaussian": likelihoods.GaussianLikelihood(),
-    "bernoulli": likelihoods.BernoulliLikelihood,
+    "Gaussian": likelihoods.GaussianLikelihood(),
+    "Bernoulli": likelihoods.BernoulliLikelihood,
 }
 
 

@@ -1,3 +1,4 @@
+from gpytorch.likelihoods import likelihood
 import ray
 import click
 
@@ -40,19 +41,11 @@ def cli(context):
     help="number of cpus for each trial, default=1",
 )
 @click.option(
-    "--seed",
-    default=1331,
-    type=int,
-    help="random number generator seed, default=1331",
+    "--seed", default=1331, type=int, help="random number generator seed, default=1331",
 )
 @click.pass_context
 def tune(
-    context,
-    job_dir,
-    max_samples,
-    gpu_per_trial,
-    cpu_per_trial,
-    seed,
+    context, job_dir, max_samples, gpu_per_trial, cpu_per_trial, seed,
 ):
     ray.init(
         num_gpus=context.obj["n_gpu"],
@@ -95,20 +88,11 @@ def tune(
 )
 @click.option("--verbose", default=False, type=bool, help="verbosity default=False")
 @click.option(
-    "--seed",
-    default=1331,
-    type=int,
-    help="random number generator seed, default=1331",
+    "--seed", default=1331, type=int, help="random number generator seed, default=1331",
 )
 @click.pass_context
 def train(
-    context,
-    job_dir,
-    num_trials,
-    gpu_per_trial,
-    cpu_per_trial,
-    verbose,
-    seed,
+    context, job_dir, num_trials, gpu_per_trial, cpu_per_trial, verbose, seed,
 ):
     ray.init(
         num_gpus=context.obj["n_gpu"],
@@ -182,10 +166,7 @@ def train(
 )
 @click.option("--verbose", default=False, type=bool, help="verbosity default=False")
 @click.option(
-    "--seed",
-    default=1331,
-    type=int,
-    help="random number generator seed, default=1331",
+    "--seed", default=1331, type=int, help="random number generator seed, default=1331",
 )
 @click.pass_context
 def active_learning(
@@ -247,32 +228,21 @@ def active_learning(
 )
 @click.pass_context
 def evaluate(
-    context,
-    experiment_dir,
-    output_dir,
+    context, experiment_dir, output_dir,
 ):
     output_dir = experiment_dir if output_dir is None else output_dir
     context.obj.update(
-        {
-            "experiment_dir": experiment_dir,
-            "output_dir": output_dir,
-        }
+        {"experiment_dir": experiment_dir, "output_dir": output_dir,}
     )
 
 
 @cli.command("hcmnist")
 @click.pass_context
 @click.option(
-    "--root",
-    type=str,
-    required=True,
-    help="location of dataset",
+    "--root", type=str, required=True, help="location of dataset",
 )
 @click.option(
-    "--subsample",
-    type=float,
-    default=None,
-    help="Subsample the dataset",
+    "--subsample", type=float, default=None, help="Subsample the dataset",
 )
 def hcmnist(context, root, subsample):
     job_dir = Path(context.obj.get("job_dir"))
@@ -312,14 +282,10 @@ def hcmnist(context, root, subsample):
 @cli.command("ihdp")
 @click.pass_context
 @click.option(
-    "--root",
-    type=str,
-    required=True,
-    help="location of dataset",
+    "--root", type=str, required=True, help="location of dataset",
 )
 def ihdp(
-    context,
-    root,
+    context, root,
 ):
     job_dir = Path(context.obj.get("job_dir"))
     dataset_name = "ihdp"
@@ -353,17 +319,50 @@ def ihdp(
 @cli.command("ihdp-cov")
 @click.pass_context
 @click.option(
-    "--root",
-    type=str,
-    required=True,
-    help="location of dataset",
+    "--root", type=str, required=True, help="location of dataset",
 )
 def ihdp_cov(
-    context,
-    root,
+    context, root,
 ):
     job_dir = Path(context.obj.get("job_dir"))
     dataset_name = "ihdp-cov"
+    experiment_dir = job_dir / dataset_name
+    context.obj.update(
+        {
+            "dataset_name": dataset_name,
+            "experiment_dir": str(experiment_dir),
+            "ds_train": {
+                "root": root,
+                "split": "train",
+                "mode": "mu",
+                "seed": context.obj.get("seed"),
+            },
+            "ds_valid": {
+                "root": root,
+                "split": "valid",
+                "mode": "mu",
+                "seed": context.obj.get("seed"),
+            },
+            "ds_test": {
+                "root": root,
+                "split": "test",
+                "mode": "mu",
+                "seed": context.obj.get("seed"),
+            },
+        }
+    )
+
+
+@cli.command("twins")
+@click.pass_context
+@click.option(
+    "--root", type=str, required=True, help="location of dataset",
+)
+def twins(
+    context, root,
+):
+    job_dir = Path(context.obj.get("job_dir"))
+    dataset_name = "twins"
     experiment_dir = job_dir / dataset_name
     context.obj.update(
         {
@@ -424,12 +423,7 @@ def ihdp_cov(
     help="Domain of x is [-domain_limit, domain_limit], default=2.5",
 )
 def synthetic(
-    context,
-    num_examples,
-    beta,
-    bimodal,
-    sigma,
-    domain_limit,
+    context, num_examples, beta, bimodal, sigma, domain_limit,
 ):
     job_dir = Path(context.obj.get("job_dir"))
     dataset_name = "synthetic"
@@ -627,12 +621,10 @@ def deep_kernel_gp(
     batch_size,
     epochs,
 ):
+    likelihood = "Bernoulli" if context.obj["dataset_name"] in ["twins"] else "Gaussian"
     if context.obj["mode"] == "tune":
         context.obj.update(
-            {
-                "epochs": epochs,
-                "dim_output": dim_output,
-            }
+            {"epochs": epochs, "dim_output": dim_output, "likelihood": likelihood,}
         )
         workflows.tuning.tune_deep_kernel_gp(config=context.obj)
     elif context.obj["mode"] == "train":
@@ -640,6 +632,7 @@ def deep_kernel_gp(
             {
                 "kernel": kernel,
                 "num_inducing_points": num_inducing_points,
+                "likelihood": likelihood,
                 "dim_hidden": dim_hidden,
                 "depth": depth,
                 "dim_output": dim_output,
@@ -689,6 +682,7 @@ def deep_kernel_gp(
             {
                 "kernel": kernel,
                 "num_inducing_points": num_inducing_points,
+                "likelihood": likelihood,
                 "dim_hidden": dim_hidden,
                 "depth": depth,
                 "dim_output": dim_output,
@@ -719,9 +713,7 @@ def deep_kernel_gp(
 
 @cli.command("pehe")
 @click.pass_context
-def pehe(
-    context,
-):
+def pehe(context,):
     workflows.evaluation.pehe(
         experiment_dir=Path(context.obj["experiment_dir"]),
         output_dir=Path(context.obj["output_dir"]),
@@ -736,8 +728,7 @@ def pehe(
 )
 @click.pass_context
 def plot_distribution(
-    context,
-    acquisition_step,
+    context, acquisition_step,
 ):
     workflows.evaluation.plot_distribution(
         experiment_dir=Path(context.obj["experiment_dir"]),
@@ -748,16 +739,11 @@ def plot_distribution(
 
 @cli.command("plot-convergence")
 @click.option(
-    "--methods",
-    "-m",
-    multiple=True,
-    type=str,
-    help="Which methods to plot",
+    "--methods", "-m", multiple=True, type=str, help="Which methods to plot",
 )
 @click.pass_context
 def plot_convergence(
-    context,
-    methods,
+    context, methods,
 ):
     workflows.evaluation.plot_convergence(
         experiment_dir=Path(context.obj["experiment_dir"]),
@@ -768,9 +754,7 @@ def plot_convergence(
 
 @cli.command("plot-errorbars")
 @click.pass_context
-def plot_errorbars(
-    context,
-):
+def plot_errorbars(context,):
     workflows.evaluation.plot_errorbars(
         experiment_dir=Path(context.obj["experiment_dir"]),
         output_dir=Path(context.obj["output_dir"]),
