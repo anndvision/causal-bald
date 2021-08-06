@@ -14,6 +14,11 @@ from causal_bald.library.modules import dense
 from causal_bald.library.modules import convolution
 from causal_bald.library.modules import gaussian_process
 
+_LIKELIHOODS = {
+    "gaussian": likelihoods.GaussianLikelihood(),
+    "bernoulli": likelihoods.BernoulliLikelihood,
+}
+
 
 class DeepKernelGP(core.PyTorchModel):
     def __init__(
@@ -22,6 +27,7 @@ class DeepKernelGP(core.PyTorchModel):
         kernel,
         num_inducing_points,
         inducing_point_dataset,
+        likelihood,
         architecture,
         dim_input,
         dim_hidden,
@@ -106,11 +112,10 @@ class DeepKernelGP(core.PyTorchModel):
             ard=None,
             lengthscale_prior=False,
         ).to(self.device)
-        self.network = gaussian_process.DeepKernelGP(
-            encoder=self.encoder,
-            gp=self.gp,
-        )
-        self.likelihood = likelihoods.GaussianLikelihood()
+        self.network = gaussian_process.DeepKernelGP(encoder=self.encoder, gp=self.gp,)
+        self.likelihood = _LIKELIHOODS.get(likelihood)
+        if self.likelihood is None:
+            raise NotImplementedError(f"{likelihood} likelihood not supported")
         self.optimizer = optim.Adam(
             params=[
                 {"params": self.encoder.parameters(), "lr": self.learning_rate},
