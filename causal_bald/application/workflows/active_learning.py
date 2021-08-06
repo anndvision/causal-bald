@@ -23,6 +23,7 @@ def active_deep_kernel_gp(config, experiment_dir, trial):
     # Get model parameters from config
     kernel = config.get("kernel")
     num_inducing_points = config.get("num_inducing_points")
+    likelihood = config.get("likelihood")
     dim_hidden = config.get("dim_hidden")
     dim_output = config.get("dim_output")
     depth = config.get("depth")
@@ -96,6 +97,7 @@ def active_deep_kernel_gp(config, experiment_dir, trial):
                 kernel=kernel,
                 num_inducing_points=num_inducing_points,
                 inducing_point_dataset=ds_active.dataset,
+                likelihood=likelihood,
                 architecture="resnet",
                 dim_input=ds_active.dataset.dim_input,
                 dim_hidden=dim_hidden,
@@ -142,6 +144,7 @@ def active_deep_kernel_gp(config, experiment_dir, trial):
                 kernel=kernel,
                 num_inducing_points=num_inducing_points,
                 inducing_point_dataset=ds_active.training_dataset,
+                likelihood=likelihood,
                 architecture="resnet",
                 dim_input=ds_active.dataset.dim_input,
                 dim_hidden=dim_hidden,

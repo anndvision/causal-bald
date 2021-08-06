@@ -6,10 +6,7 @@ from causal_bald.library import datasets
 
 
 def tarnet_trainer(
-    config,
-    experiment_dir,
-    trial,
-    ensemble_id,
+    config, experiment_dir, trial, ensemble_id,
 ):
     dataset_name = config.get("dataset_name")
 
@@ -68,9 +65,7 @@ def tarnet_trainer(
 
 
 def train_deep_kernel_gp(
-    config,
-    experiment_dir,
-    trial,
+    config, experiment_dir, trial,
 ):
     dataset_name = config.get("dataset_name")
 
@@ -82,6 +77,7 @@ def train_deep_kernel_gp(
     ds_valid = datasets.DATASETS.get(dataset_name)(**config.get("ds_valid"))
 
     kernel = config.get("kernel")
+    likelihood = config.get("likelihood")
     num_inducing_points = config.get("num_inducing_points")
     dim_hidden = config.get("dim_hidden")
     dim_output = config.get("dim_output")
@@ -112,6 +108,7 @@ def train_deep_kernel_gp(
             kernel=kernel,
             num_inducing_points=num_inducing_points,
             inducing_point_dataset=ds_train,
+            likelihood=likelihood,
             architecture="resnet",
             dim_input=ds_train.dim_input,
             dim_hidden=dim_hidden,

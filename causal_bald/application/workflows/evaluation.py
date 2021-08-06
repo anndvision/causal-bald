@@ -217,6 +217,7 @@ def pehe(experiment_dir, output_dir):
 def predict_due(ds, job_dir, config):
     kernel = config.get("kernel")
     num_inducing_points = config.get("num_inducing_points")
+    likelihood = config.get("likelihood")
     dim_hidden = config.get("dim_hidden")
     dim_output = config.get("dim_output")
     depth = config.get("depth")
@@ -231,6 +232,7 @@ def predict_due(ds, job_dir, config):
         kernel=kernel,
         num_inducing_points=num_inducing_points,
         inducing_point_dataset=ds,
+        likelihood=likelihood,
         architecture="resnet",
         dim_input=ds.dim_input,
         dim_hidden=dim_hidden,

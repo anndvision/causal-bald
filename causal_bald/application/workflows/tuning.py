@@ -35,11 +35,13 @@ def tune_deep_kernel_gp(config):
         learning_rate = config.get("learning_rate")
         batch_size = config.get("batch_size")
         epochs = config.get("epochs")
+        likelihood = config.get("likelihood")
         outcome_model = models.DeepKernelGP(
             job_dir=None,
             kernel=kernel,
             num_inducing_points=num_inducing_points,
             inducing_point_dataset=ds_train,
+            likelihood=likelihood,
             architecture="resnet",
             dim_input=ds_train.dim_input,
             dim_hidden=dim_hidden,
