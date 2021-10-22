@@ -23,7 +23,7 @@ def cli(context):
 )
 @click.option(
     "--max-samples",
-    default=100,
+    default=200,
     type=int,
     help="maximum number of search space samples, default=100",
 )
@@ -621,7 +621,7 @@ def ensemble(
     help="number of examples to read during each training step, default=100",
 )
 @click.option(
-    "--epochs", type=int, default=1000, help="number of training epochs, default=500"
+    "--epochs", type=int, default=500, help="number of training epochs, default=500"
 )
 def deep_kernel_gp(
     context,
