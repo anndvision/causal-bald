@@ -40,16 +40,29 @@ def cli(context):
     help="number of cpus for each trial, default=1",
 )
 @click.option(
+    "--object-memory-store",
+    default=8000000000,
+    type=int,
+    help="ray parameter, default=8000000000",
+)
+@click.option(
     "--seed", default=1331, type=int, help="random number generator seed, default=1331",
 )
 @click.pass_context
 def tune(
-    context, job_dir, max_samples, gpu_per_trial, cpu_per_trial, seed,
+    context,
+    job_dir,
+    max_samples,
+    gpu_per_trial,
+    cpu_per_trial,
+    object_memory_store,
+    seed,
 ):
     ray.init(
         num_gpus=context.obj["n_gpu"],
         dashboard_host="127.0.0.1",
         ignore_reinit_error=True,
+        object_store_memory=object_memory_store,
     )
     gpu_per_trial = 0 if context.obj["n_gpu"] == 0 else gpu_per_trial
     job_dir = Path(job_dir) / "tuning"
@@ -85,18 +98,32 @@ def tune(
     type=float,
     help="number of cpus for each trial, default=1",
 )
+@click.option(
+    "--object-memory-store",
+    default=8000000000,
+    type=int,
+    help="ray parameter, default=8000000000",
+)
 @click.option("--verbose", default=False, type=bool, help="verbosity default=False")
 @click.option(
     "--seed", default=1331, type=int, help="random number generator seed, default=1331",
 )
 @click.pass_context
 def train(
-    context, job_dir, num_trials, gpu_per_trial, cpu_per_trial, verbose, seed,
+    context,
+    job_dir,
+    num_trials,
+    gpu_per_trial,
+    cpu_per_trial,
+    object_memory_store,
+    verbose,
+    seed,
 ):
     ray.init(
         num_gpus=context.obj["n_gpu"],
         dashboard_host="127.0.0.1",
         ignore_reinit_error=True,
+        object_store_memory=object_memory_store,
     )
     gpu_per_trial = 0 if context.obj["n_gpu"] == 0 else gpu_per_trial
     job_dir = Path(job_dir) / "training"
@@ -163,6 +190,12 @@ def train(
     type=float,
     help="number of cpus for each trial, default=1",
 )
+@click.option(
+    "--object-memory-store",
+    default=8000000000,
+    type=int,
+    help="ray parameter, default=8000000000",
+)
 @click.option("--verbose", default=False, type=bool, help="verbosity default=False")
 @click.option(
     "--seed", default=1331, type=int, help="random number generator seed, default=1331",
@@ -179,6 +212,7 @@ def active_learning(
     temperature,
     gpu_per_trial,
     cpu_per_trial,
+    object_memory_store,
     verbose,
     seed,
 ):
@@ -186,6 +220,7 @@ def active_learning(
         num_gpus=context.obj["n_gpu"],
         dashboard_host="127.0.0.1",
         ignore_reinit_error=True,
+        object_store_memory=object_memory_store,
     )
     gpu_per_trial = 0 if context.obj["n_gpu"] == 0 else gpu_per_trial
     job_dir = (
