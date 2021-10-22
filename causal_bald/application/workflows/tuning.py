@@ -1,6 +1,6 @@
 from ray import tune
 from ray.tune import schedulers
-from ray.tune.suggest import hyperopt
+from ray.tune.suggest import bohb
 
 from causal_bald.library import datasets
 
@@ -33,17 +33,15 @@ def deep_kernel_gp_tuner(config):
             dim_input=ds_train.dim_input,
         )
 
-    algorithm = hyperopt.HyperOptSearch(
-        space, metric="mean_loss", mode="min", n_initial_points=100,
-    )
-    scheduler = schedulers.AsyncHyperBandScheduler(
-        grace_period=100, max_t=config.get("epochs")
+    algorithm = bohb.TuneBOHB(space, metric="mean_loss", mode="min",)
+    scheduler = schedulers.HyperBandForBOHB(
+        time_attr="training_iteration", max_t=config.get("epochs"),
     )
     analysis = tune.run(
         run_or_experiment=func,
         metric="mean_loss",
         mode="min",
-        name="hyperopt_deep_kernel_gp",
+        name="bohb_deep_kernel_gp",
         resources_per_trial={
             "cpu": config.get("cpu_per_trial"),
             "gpu": config.get("gpu_per_trial"),
@@ -81,17 +79,15 @@ def tarnet_tuner(config):
             dim_input=ds_train.dim_input,
         )
 
-    algorithm = hyperopt.HyperOptSearch(
-        space, metric="mean_loss", mode="min", n_initial_points=100,
-    )
-    scheduler = schedulers.AsyncHyperBandScheduler(
-        grace_period=100, max_t=config.get("epochs")
+    algorithm = bohb.TuneBOHB(space, metric="mean_loss", mode="min",)
+    scheduler = schedulers.HyperBandForBOHB(
+        time_attr="training_iteration", max_t=config.get("epochs"),
     )
     analysis = tune.run(
         run_or_experiment=func,
         metric="mean_loss",
         mode="min",
-        name="hyperopt_tarnet",
+        name="bohb_tarnet",
         resources_per_trial={
             "cpu": config.get("cpu_per_trial"),
             "gpu": config.get("gpu_per_trial"),
