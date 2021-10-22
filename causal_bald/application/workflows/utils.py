@@ -61,28 +61,27 @@ def train_ensemble(ds_train, ds_valid, job_dir, config, dim_input):
     batch_size = config.get("batch_size")
     epochs = config.get("epochs")
     for ensemble_id in range(ensemble_size):
-        out_dir = job_dir / f"model-{ensemble_id}"
-        if not (out_dir / "best_checkpoint.pt").exists():
-            model = models.TARNet(
-                job_dir=out_dir,
-                architecture="resnet",
-                dim_input=dim_input,
-                dim_hidden=dim_hidden,
-                dim_output=dim_output,
-                depth=depth,
-                negative_slope=negative_slope,
-                batch_norm=False,
-                spectral_norm=spectral_norm,
-                dropout_rate=dropout_rate,
-                weight_decay=(0.5 * (1 - dropout_rate)) / len(ds_train),
-                learning_rate=learning_rate,
-                batch_size=batch_size,
-                epochs=epochs,
-                patience=20,
-                num_workers=0,
-                seed=None,
-            )
-            _ = model.fit(ds_train, ds_valid)
+        out_dir = job_dir / f"model-{ensemble_id}" if job_dir is not None else None
+        model = models.TARNet(
+            job_dir=out_dir,
+            architecture="resnet",
+            dim_input=dim_input,
+            dim_hidden=dim_hidden,
+            dim_output=dim_output,
+            depth=depth,
+            negative_slope=negative_slope,
+            batch_norm=False,
+            spectral_norm=spectral_norm,
+            dropout_rate=dropout_rate,
+            weight_decay=(0.5 * (1 - dropout_rate)) / len(ds_train),
+            learning_rate=learning_rate,
+            batch_size=batch_size,
+            epochs=epochs,
+            patience=20,
+            num_workers=0,
+            seed=None,
+        )
+        _ = model.fit(ds_train, ds_valid)
 
 
 def train_deep_kernel_gp(ds_train, ds_valid, job_dir, config, dim_input):

@@ -115,9 +115,7 @@ class PyTorchModel(BaseModel):
             num_workers=self.num_workers,
         )
         tune_loader = data.DataLoader(
-            tune_dataset,
-            batch_size=self.batch_size,
-            num_workers=self.num_workers,
+            tune_dataset, batch_size=self.batch_size, num_workers=self.num_workers,
         )
         # Instantiate trainer
         for k, v in self.metrics.items():
@@ -169,14 +167,15 @@ class PyTorchModel(BaseModel):
     def on_training_completed(self, engine, loader):
         self.save()
         self.load()
-        self.evaluator.run(loader)
-        metric_values = self.evaluator.state.metrics
-        print("Metrics Epoch", engine.state.epoch)
-        justify = max(len(k) for k in metric_values) + 2
-        for k, v in metric_values.items():
-            if type(v) == float:
-                print("best {:<{justify}} {:<5f}".format(k, v, justify=justify))
-                continue
+        if not tune.is_session_enabled():
+            self.evaluator.run(loader)
+            metric_values = self.evaluator.state.metrics
+            print("Metrics Epoch", engine.state.epoch)
+            justify = max(len(k) for k in metric_values) + 2
+            for k, v in metric_values.items():
+                if type(v) == float:
+                    print("best {:<{justify}} {:<5f}".format(k, v, justify=justify))
+                    continue
 
     def update(self):
         if not tune.is_session_enabled():
@@ -191,8 +190,9 @@ class PyTorchModel(BaseModel):
                 )
 
     def save(self):
-        p = os.path.join(self.job_dir, "best_checkpoint.pt")
-        torch.save(self.best_state, p)
+        if not tune.is_session_enabled():
+            p = os.path.join(self.job_dir, "best_checkpoint.pt")
+            torch.save(self.best_state, p)
 
     def load(self):
         if tune.is_session_enabled():
