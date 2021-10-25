@@ -100,7 +100,7 @@ def plot_convergence(experiment_dir, methods):
             alpha=0.3,
         )
         _ = plt.legend(loc=None, title=None)
-    _ = plt.savefig("convergence.png")
+    _ = plt.savefig(experiment_dir / "convergence.png", dpi=150)
 
 
 def plot_distribution(experiment_dir, acquisition_step):
@@ -160,6 +160,7 @@ def plot_distribution(experiment_dir, acquisition_step):
 
 
 def pehe(experiment_dir, output_dir):
+    output_dir.mkdir(parents=True, exist_ok=True)
     pehe = {}
     trial = 0
     for trial_dir in sorted(experiment_dir.iterdir()):

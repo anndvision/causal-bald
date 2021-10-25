@@ -61,7 +61,12 @@ def train_ensemble(ds_train, ds_valid, job_dir, config, dim_input):
     batch_size = config.get("batch_size")
     epochs = config.get("epochs")
     for ensemble_id in range(ensemble_size):
-        out_dir = job_dir / f"model-{ensemble_id}" if job_dir is not None else None
+        if job_dir is None:
+            out_dir = job_dir
+        else:
+            out_dir = job_dir / f"model-{ensemble_id}"
+            if (out_dir / "best_checkpoint.pt").exists():
+                continue
         model = models.TARNet(
             job_dir=out_dir,
             architecture="resnet",

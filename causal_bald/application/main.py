@@ -464,32 +464,32 @@ def synthetic(
 @cli.command("ensemble")
 @click.pass_context
 @click.option("--dim-hidden", default=200, type=int, help="num neurons")
-@click.option("--dim-output", default=2, type=int, help="output dimensionality")
-@click.option("--depth", default=3, type=int, help="depth of feature extractor")
+@click.option("--dim-output", default=5, type=int, help="output dimensionality")
+@click.option("--depth", default=4, type=int, help="depth of feature extractor")
 @click.option(
     "--negative-slope",
-    default=-1,
+    default=0.3,
     type=float,
     help="negative slope of leaky relu, default=-1 use elu",
 )
 @click.option(
-    "--dropout-rate", default=0.2, type=float, help="dropout rate, default=0.1"
+    "--dropout-rate", default=0.5, type=float, help="dropout rate, default=0.1"
 )
 @click.option(
     "--spectral-norm",
-    default=0.95,
+    default=0.0,
     type=float,
     help="Spectral normalization coefficient. If 0.0 do not use spectral norm, default=0.0",
 )
 @click.option(
     "--learning-rate",
-    default=1e-3,
+    default=5e-4,
     type=float,
     help="learning rate for gradient descent, default=1e-3",
 )
 @click.option(
     "--batch-size",
-    default=100,
+    default=200,
     type=int,
     help="number of examples to read during each training step, default=100",
 )
