@@ -10,5 +10,5 @@ DATASETS = {
     "ihdp": IHDP,
     "ihdp-cov": IHDPCov,
     "synthetic": Synthetic,
-    "hcmnist": HCMNIST,
+    "cmnist": HCMNIST,
 }

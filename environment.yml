@@ -5,11 +5,11 @@ channels:
   - defaults
 dependencies:
   - black>=19.1
-  - pip>=21.1
-  - python>=3.8,<3.9
+  - pip>=21.2
+  - python>=3.9
   - jupyter>=1.0.0
-  - pytorch>=1.8.1
-  - gpytorch>=1.4.2
+  - pytorch>=1.10.0
+  - gpytorch>=1.5.1
   - cudatoolkit=10.2
   - pip:
       - .
