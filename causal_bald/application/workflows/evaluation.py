@@ -103,6 +103,55 @@ def plot_convergence(experiment_dir, methods):
     _ = plt.savefig(experiment_dir / "convergence.png", dpi=150)
 
 
+def plot_evolution(experiment_dir, trial, num_steps):
+    plot_args = {
+        "x_pool": None,
+        "t_pool": None,
+        "x_acquired": None,
+        "t_acquired": None,
+        "tau_true": None,
+        "tau_pred": None,
+    }
+    trial_dir = experiment_dir / f"trial-{trial:03d}"
+    config_path = trial_dir / "config.json"
+    with config_path.open(mode="r") as cp:
+        config = json.load(cp)
+
+    dataset_name = config.get("dataset_name")
+
+    ds_train = datasets.DATASETS.get(dataset_name)(**config.get("ds_train"))
+    plot_args["x_pool"] = ds_train.x.ravel()
+    plot_args["t_pool"] = ds_train.t
+    plot_args["tau_true"] = ds_train.mu1 - ds_train.mu0
+    out_dir = trial_dir / "evolution"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for acquisition_step in range(num_steps):
+        # Load acquired indices
+        acquired_path = (
+            trial_dir / f"acquisition-{acquisition_step:03d}" / "aquired.json"
+        )
+        if not acquired_path.exists():
+            break
+        with acquired_path.open(mode="r") as ap:
+            aquired_dict = json.load(ap)
+        acquired_indices = aquired_dict["aquired_indices"]
+        plot_args["x_acquired"] = ds_train.x[acquired_indices].ravel()
+        plot_args["t_acquired"] = ds_train.t[acquired_indices]
+        acquisition_dir = trial_dir / f"acquisition-{acquisition_step:03d}"
+        domain = torch.arange(-3.5, 3.5, 0.01, dtype=torch.float32).unsqueeze(-1)
+        ds = data.TensorDataset(torch.cat([domain, domain], -1), domain)
+        ds.dim_input = 1
+        mu_0, mu_1 = utils.PREDICT_FUNCTIONS[
+            config.get("model_name", "deep_kernel_gp")
+        ](dataset=ds, job_dir=acquisition_dir, config=config)
+        plot_args["tau_pred"] = (mu_1 - mu_0) * ds_train.y_std[0]
+        num_acquired = len(plot_args["t_acquired"])
+        plot_args["domain"] = np.arange(-3.5, 3.5, 0.01)
+        plot_args["legend_title"] = f"Acquired: {num_acquired:03d}"
+        plot_args["file_path"] = out_dir / f"distribution_{acquisition_step:02d}.png"
+        plotting.acquisition_hist(**plot_args)
+
+
 def plot_distribution(experiment_dir, acquisition_step):
     plot_args = {
         "x_pool": [],
@@ -142,9 +191,9 @@ def plot_distribution(experiment_dir, acquisition_step):
         domain = torch.arange(-3.5, 3.5, 0.01, dtype=torch.float32).unsqueeze(-1)
         ds = data.TensorDataset(torch.cat([domain, domain], -1), domain)
         ds.dim_input = 1
-        mu_0, mu_1 = utils.PREDICT_FUNCTIONS[config.get("model_name")](
-            dataset=ds, job_dir=acquisition_dir, config=config
-        )
+        mu_0, mu_1 = utils.PREDICT_FUNCTIONS[
+            config.get("model_name", "deep_kernel_gp")
+        ](dataset=ds, job_dir=acquisition_dir, config=config)
         plot_args["tau_pred"].append((mu_1 - mu_0) * ds_train.y_std[0])
         trial += 1
     for k, v in plot_args.items():
@@ -155,7 +204,7 @@ def plot_distribution(experiment_dir, acquisition_step):
     num_acquired = len(plot_args["t_acquired"]) // (trial)
     plot_args["domain"] = np.arange(-3.5, 3.5, 0.01)
     plot_args["legend_title"] = f"Acquired: {num_acquired}"
-    plot_args["file_path"] = experiment_dir / "distribution.png"
+    plot_args["file_path"] = experiment_dir / f"distribution_{acquisition_step:02d}.png"
     plotting.acquisition_clean(**plot_args)
 
 
