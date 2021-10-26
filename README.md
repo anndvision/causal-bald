@@ -8,7 +8,7 @@
 
 An implementation of the methods presented in [Causal-BALD: Deep Bayesian Active Learning of Outcomes to Infer Treatment-Effects from Observational Data](https://google.com).
 
-![Evolution of CATE function with Causal BALD acquisition strategy](https://imgur.com/a/Qaen3aH)
+![Evolution of CATE function with Causal BALD acquisition strategy](assets/mu-rho.gif)
 
 ## Abstract
 
