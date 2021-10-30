@@ -376,6 +376,157 @@ def acquisition_hist(
     _ = plt.close()
 
 
+def acquisition_hist(
+    x_pool,
+    t_pool,
+    x_acquired,
+    t_acquired,
+    tau_true,
+    tau_pred,
+    domain,
+    legend_title=None,
+    file_path=None,
+):
+    plt.rcParams.update(
+        {
+            "text.color": "0.2",
+            "font.weight": "bold",
+            "legend.fontsize": 18,
+            "legend.title_fontsize": 18,
+            "axes.labelsize": 24,
+            "axes.labelcolor": "0.2",
+            "axes.labelweight": "bold",
+            "xtick.labelsize": 18,
+        }
+    )
+    fig, ax = plt.subplots(
+        3,
+        1,
+        figsize=(1920 / 150, 1080 / 150),
+        dpi=150,
+        gridspec_kw={"height_ratios": [1, 1, 3]},
+    )
+    density_axis = ax[0]
+    acquire_axis = ax[1]
+    data_axis = ax[2]
+    control_color = "C0"
+    treatment_color = "C4"
+    function_color = "#ad8bd6"
+
+    idx = np.argsort(x_pool.ravel())
+    idx_0 = np.argsort(x_pool[t_pool == 0].ravel())
+    idx_1 = np.argsort(x_pool[t_pool == 1].ravel())
+
+    _ = density_axis.axvspan(-3.0, 2, facecolor=control_color, alpha=0.05)
+    _ = density_axis.axvspan(-2, 3.0, facecolor=treatment_color, alpha=0.05)
+    _ = sns.histplot(
+        x=x_pool[t_pool == 0][idx_0].ravel(),
+        bins=np.arange(-6, 6.04, 0.04),
+        color=control_color,
+        fill=True,
+        alpha=0.5,
+        label="Control",
+        ax=density_axis,
+    )
+    _ = sns.histplot(
+        x=x_pool[t_pool == 1][idx_1].ravel(),
+        bins=np.arange(-6, 6.04, 0.04),
+        color=treatment_color,
+        fill=True,
+        alpha=0.5,
+        label="Treated",
+        ax=density_axis,
+    )
+    _ = density_axis.tick_params(
+        axis="y", which="both", left=False, right=False, labelleft=False
+    )
+    _ = density_axis.tick_params(
+        axis="x", which="both", left=False, right=False, labelbottom=False
+    )
+    # _ = density_axis.set_ylabel("count")
+    _ = density_axis.set_xlim([-3.0, 3.0])
+    _ = density_axis.legend(
+        loc="upper left", bbox_to_anchor=(1, 1.05), title="Pool Data"
+    )
+
+    _ = data_axis.axvspan(-3.0, 2, facecolor=control_color, alpha=0.05)
+    _ = data_axis.axvspan(-2, 3.0, facecolor=treatment_color, alpha=0.05)
+    _ = data_axis.plot(
+        x_pool[idx].ravel(),
+        tau_true[idx].ravel(),
+        color="black",
+        lw=4,
+        ls=":",
+        label=r"$\tau(\mathbf{x})$",
+    )
+    tau_mean = tau_pred.mean(0)
+    tau_2sigma = 2 * tau_pred.std(0)
+    _ = data_axis.plot(
+        domain,
+        tau_mean,
+        color=function_color,
+        lw=2,
+        ls="-",
+        alpha=1.0,
+        label=r"$\widehat{\tau}_{\mathbf{\omega}}(\mathbf{x})$",
+    )
+    _ = data_axis.fill_between(
+        x=domain,
+        y1=tau_mean - tau_2sigma,
+        y2=tau_mean + tau_2sigma,
+        color=function_color,
+        alpha=0.3,
+    )
+    _ = sns.despine()
+    _ = data_axis.set_xlabel("Covariate $\mathbf{x}$")
+    _ = data_axis.set_ylabel(r"Treatment Effect $\tau$")
+    _ = data_axis.tick_params(axis="x", direction="in", pad=-20)
+    _ = data_axis.tick_params(
+        axis="y", which="both", left=False, right=False, labelleft=False
+    )
+    _ = data_axis.set_xlim([-3.0, 3.0])
+    _ = data_axis.set_ylim([-8, 12])
+    _ = data_axis.legend(loc="upper left", bbox_to_anchor=(1, 1.02))
+
+    _ = acquire_axis.axvspan(-3.0, 2, facecolor=control_color, alpha=0.05)
+    _ = acquire_axis.axvspan(-2, 3.0, facecolor=treatment_color, alpha=0.05)
+    _ = sns.histplot(
+        x=x_acquired[t_acquired == 0].ravel(),
+        bins=np.arange(-6, 6.04, 0.04),
+        color=control_color,
+        fill=True,
+        alpha=0.5,
+        label="Control",
+        ax=acquire_axis,
+    )
+    _ = sns.histplot(
+        x=x_acquired[t_acquired == 1].ravel(),
+        bins=np.arange(-6, 6.04, 0.04),
+        color=treatment_color,
+        fill=True,
+        alpha=0.5,
+        label="Treated",
+        ax=acquire_axis,
+    )
+    _ = acquire_axis.tick_params(
+        axis="y", which="both", left=False, right=False, labelleft=False
+    )
+    _ = acquire_axis.tick_params(
+        axis="x", which="both", left=False, right=False, labelbottom=False
+    )
+    # _ = acquire_axis.set_ylabel("count")
+    _ = acquire_axis.set_xlim([-3.0, 3.0])
+    _ = acquire_axis.legend(
+        loc="upper left", bbox_to_anchor=(1, 1.05), title=legend_title
+    )
+    im = plt.imread("assets/oatml.png")
+    newax = fig.add_axes([0.84, 0.02, 0.28, 0.28], anchor="SW", zorder=1)
+    newax.imshow(im, alpha=0.3)
+    newax.axis("off")
+    _ = plt.savefig(file_path, dpi=150)
+    _ = plt.close()
+
+
 def acquisition_clean(
     x_pool,
     t_pool,
