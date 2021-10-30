@@ -64,8 +64,7 @@ class HCMNIST(datasets.MNIST):
         self.dim_output = 1
 
         self.phi_model = fit_phi_model(
-            root=root,
-            edges=torch.arange(-domain, domain + 0.1, (2 * domain) / 10),
+            root=root, edges=torch.arange(-domain, domain + 0.1, (2 * domain) / 10),
         )
 
         phi = self.phi

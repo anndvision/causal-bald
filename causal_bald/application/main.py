@@ -270,7 +270,7 @@ def evaluate(
     )
 
 
-@cli.command("hcmnist")
+@cli.command("cmnist")
 @click.pass_context
 @click.option(
     "--root", type=str, required=True, help="location of dataset",
@@ -278,10 +278,13 @@ def evaluate(
 @click.option(
     "--subsample", type=float, default=None, help="Subsample the dataset",
 )
-def hcmnist(context, root, subsample):
-    job_dir = Path(context.obj.get("job_dir"))
-    dataset_name = "hcmnist"
-    experiment_dir = job_dir / dataset_name
+def cmnist(context, root, subsample):
+    dataset_name = "cmnist"
+    job_dir = context.obj.get("job_dir")
+    if job_dir is not None:
+        experiment_dir = Path(job_dir) / dataset_name
+    else:
+        experiment_dir = None
     if subsample is not None:
         subsample = {i: subsample for i in range(10)}
     context.obj.update(
@@ -422,13 +425,16 @@ def ihdp_cov(
 def synthetic(
     context, num_examples, beta, bimodal, sigma, domain_limit,
 ):
-    job_dir = Path(context.obj.get("job_dir"))
     dataset_name = "synthetic"
-    experiment_dir = (
-        job_dir
-        / dataset_name
-        / f"ne-{num_examples}_be-{beta:.02f}_bi-{bimodal}_si-{sigma:.02f}_dl-{domain_limit:.02f}"
-    )
+    job_dir = context.obj.get("job_dir")
+    if job_dir is not None:
+        experiment_dir = (
+            Path(job_dir)
+            / dataset_name
+            / f"ne-{num_examples}_be-{beta:.02f}_bi-{bimodal}_si-{sigma:.02f}_dl-{domain_limit:.02f}"
+        )
+    else:
+        experiment_dir = None
     context.obj.update(
         {
             "dataset_name": dataset_name,
@@ -439,7 +445,7 @@ def synthetic(
                 "beta": beta,
                 "bimodal": bimodal,
                 "sigma_y": sigma,
-                "seed": context.obj.get("seed"),
+                "seed": context.obj.get("seed", 0),
             },
             "ds_valid": {
                 "num_examples": num_examples // 10,
@@ -447,7 +453,7 @@ def synthetic(
                 "beta": beta,
                 "bimodal": bimodal,
                 "sigma_y": sigma,
-                "seed": context.obj.get("seed") + 1,
+                "seed": context.obj.get("seed", 0) + 1,
             },
             "ds_test": {
                 "num_examples": min(num_examples, 2000),
@@ -455,7 +461,7 @@ def synthetic(
                 "beta": beta,
                 "bimodal": bimodal,
                 "sigma_y": sigma,
-                "seed": context.obj.get("seed") + 2,
+                "seed": context.obj.get("seed", 0) + 2,
             },
         }
     )
@@ -600,7 +606,7 @@ def ensemble(
     help="negative slope of leaky relu, default=-1 use elu",
 )
 @click.option(
-    "--dropout-rate", default=0.1, type=float, help="dropout rate, default=0.2"
+    "--dropout-rate", default=0.1, type=float, help="dropout rate, default=0.1"
 )
 @click.option(
     "--spectral-norm",
@@ -761,6 +767,21 @@ def plot_convergence(
 def plot_errorbars(context,):
     workflows.evaluation.plot_errorbars(
         experiment_dir=Path(context.obj["experiment_dir"]),
+    )
+
+
+@cli.command("plot-dataset")
+@click.option(
+    "--output-dir",
+    type=str,
+    required=False,
+    default=None,
+    help="location for writing results",
+)
+@click.pass_context
+def plot_dataset(context, output_dir):
+    workflows.evaluation.plot_dataset(
+        config=context.obj, output_dir=Path(output_dir),
     )
 
 

@@ -111,7 +111,7 @@ If you find this code helpful for your work, please cite our paper
   title={Causal-BALD: Deep Bayesian Active Learning of Outcomes to Infer Treatment-Effects from Observational Data},
   author={Jesson, Andrew and Tigas, Panagiotis and van Amersfoort, Joost and Kirsch, Andreas and Shalit, Uri and Gal, Yarin},
   journal={Advances in Neural Information Processing Systems},
-  volume={34},
+  volume={35},
   year={2021}
 }
 ```
@@ -219,6 +219,8 @@ causal-bald \
 
 ### Synthetic
 
+![Synthetic dataset](assets/synthetic_dataset.png)
+
 #### Synthetic: $\mu\rho$-BALD
 
 ```.sh
@@ -317,6 +319,8 @@ causal-bald \
 ```
 
 ### CMNIST
+
+![CMNIST dataset](assets/cmnist_dataset.png)
 
 #### CMNIST: $\mu\rho$-BALD
 
