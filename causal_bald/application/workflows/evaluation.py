@@ -1,5 +1,5 @@
-import torch
 import json
+import torch
 import numpy as np
 
 from scipy import stats
@@ -206,6 +206,21 @@ def plot_distribution(experiment_dir, acquisition_step):
     plot_args["legend_title"] = f"Acquired: {num_acquired}"
     plot_args["file_path"] = experiment_dir / f"distribution_{acquisition_step:02d}.png"
     plotting.acquisition_clean(**plot_args)
+
+
+def plot_dataset(config, output_dir):
+    dataset_name = config.get("dataset_name")
+    ds = datasets.DATASETS.get(dataset_name)(**config.get("ds_train"))
+    if dataset_name == "cmnist":
+        plotting.mnist(
+            ds=ds, file_path=output_dir / "cmnist_dataset.png",
+        )
+    elif dataset_name == "synthetic":
+        plotting.dataset(
+            ds=ds, file_path=output_dir / "synthetic_dataset.png",
+        )
+    else:
+        raise NotImplementedError(f"{dataset_name} dataset not supported")
 
 
 def pehe(experiment_dir, output_dir):
