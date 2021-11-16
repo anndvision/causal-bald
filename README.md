@@ -6,7 +6,7 @@
 | **[Citation](#citation)**
 | **[Reproducing Results DUE](#reproducing-due)**
 
-An implementation of the methods presented in [Causal-BALD: Deep Bayesian Active Learning of Outcomes to Infer Treatment-Effects from Observational Data](https://google.com).
+An implementation of the methods presented in [Causal-BALD: Deep Bayesian Active Learning of Outcomes to Infer Treatment-Effects from Observational Data](https://arxiv.org/abs/2111.02275).
 
 ![Evolution of CATE function with Causal BALD acquisition strategy](assets/mu-rho.gif)
 
@@ -104,7 +104,7 @@ causal-bald \
 ## Citation
 
 If you find this code helpful for your work, please cite our paper
-[Paper](https://google.com) as
+[Paper](https://arxiv.org/abs/2111.02275) as
 
 ```bibtex
 @article{jesson2021causal,
