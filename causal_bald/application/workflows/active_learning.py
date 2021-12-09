@@ -59,17 +59,21 @@ def active_learner(model_name, config, experiment_dir, trial):
                     mu_1=mu_1,
                     t=ds_active.dataset.t,
                     pt=pt,
-                    temperature=temperature,
+                    temperature=temperature if temperature > 0.0 else 1.0,
                 )
             )[ds_active.pool_dataset.indices]
             # Sample acquired points
-            p = scores / scores.sum()
-            idx = np.random.choice(
-                range(len(p)),
-                replace=False,
-                p=p,
-                size=warm_start_size if i == 0 else step_size,
-            )
+            if temperature > 0.0:
+                p = scores / scores.sum()
+                idx = np.random.choice(
+                    range(len(p)),
+                    replace=False,
+                    p=p,
+                    size=warm_start_size if i == 0 else step_size,
+                )
+            else:
+                sz = warm_start_size if i == 0 else step_size
+                idx = np.argsort(scores)[-sz:]
             ds_active.acquire(idx)
             # Train model
             utils.TRAIN_FUNCTIONS[model_name](
