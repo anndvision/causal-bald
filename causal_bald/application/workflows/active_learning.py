@@ -1,5 +1,6 @@
 import json
 import numpy as np
+import scipy.stats 
 
 from copy import deepcopy
 
@@ -63,6 +64,10 @@ def active_learner(model_name, config, experiment_dir, trial):
                 )
             )[ds_active.pool_dataset.indices]
             # Sample acquired points
+            # Use the Gumble-Top-k trick from https://arxiv.org/abs/1903.06059
+            # p = np.log(scores) + scipy.stats.gumbel_r(loc=0, scale=1, size=len(scores), random_state=None)
+            # batch_size = warm_start_size if i == 0 else step_size              
+            # idx = np.argpartition(p, -batchsize)[-batchsize:]
             if temperature > 0.0:
                 p = scores / scores.sum()
                 idx = np.random.choice(
