@@ -74,7 +74,7 @@ Evaluate PEHE at each acquisition step
 ```.sh
 causal-bald \
     evaluate \
-        --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-random_temp-0.25/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ \
+        --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-random_temp-0.25_gumb-True/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ \
         --output-dir experiments/due/ihdp \
     pehe
 ```
@@ -82,7 +82,7 @@ causal-bald \
 ```.sh
 causal-bald \
     evaluate \
-        --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-mu-rho_temp-0.25/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ \
+        --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-mu-rho_temp-0.25_gumb-True/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ \
         --output-dir experiments/due/ihdp \
     pehe
 ```
@@ -123,81 +123,81 @@ If you find this code helpful for your work, please cite our paper
 #### $\mu\rho$-BALD
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 200 --step-size 10 --warm-start-size 100 --max-acquisitions 38 --acquisition-function mu-rho --temperature 0.25 --gpu-per-trial 0.2 ihdp --root assets/ deep-kernel-gp
+causal-bald active-learning --job-dir experiments/ --num-trials 200 --step-size 10 --warm-start-size 100 --max-acquisitions 38 --acquisition-function mu-rho --temperature 0.25 --use-gumbel False --gpu-per-trial 0.2 ihdp --root assets/ deep-kernel-gp
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-mu-rho_temp-0.25/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ --output-dir experiments/due/ihdp pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-mu-rho_temp-0.25_gumb-False/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ --output-dir experiments/due/ihdp pehe
 ```
 
 #### $\mu$-BALD
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 200 --step-size 10 --warm-start-size 100 --max-acquisitions 38 --acquisition-function mu --temperature 0.25 --gpu-per-trial 0.2 ihdp --root assets/ deep-kernel-gp
+causal-bald active-learning --job-dir experiments/ --num-trials 200 --step-size 10 --warm-start-size 100 --max-acquisitions 38 --acquisition-function mu --temperature 0.25 --use-gumbel False --gpu-per-trial 0.2 ihdp --root assets/ deep-kernel-gp
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-mu_temp-0.25/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ --output-dir experiments/due/ihdp pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-mu_temp-0.25_gumb-False/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ --output-dir experiments/due/ihdp pehe
 ```
 
 #### $\mu\pi$-BALD
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 200 --step-size 10 --warm-start-size 100 --max-acquisitions 38 --acquisition-function mu-pi --temperature 0.25 --gpu-per-trial 0.2 ihdp --root assets/ deep-kernel-gp
+causal-bald active-learning --job-dir experiments/ --num-trials 200 --step-size 10 --warm-start-size 100 --max-acquisitions 38 --acquisition-function mu-pi --temperature 0.25 --use-gumbel False --gpu-per-trial 0.2 ihdp --root assets/ deep-kernel-gp
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-mu-pi_temp-0.25/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ --output-dir experiments/due/ihdp pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-mu-pi_temp-0.25_gumb-False/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ --output-dir experiments/due/ihdp pehe
 ```
 
 #### $\rho$-BALD
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 200 --step-size 10 --warm-start-size 100 --max-acquisitions 38 --acquisition-function rho --temperature 0.25 --gpu-per-trial 0.2 ihdp --root assets/ deep-kernel-gp
+causal-bald active-learning --job-dir experiments/ --num-trials 200 --step-size 10 --warm-start-size 100 --max-acquisitions 38 --acquisition-function rho --temperature 0.25 --use-gumbel False --gpu-per-trial 0.2 ihdp --root assets/ deep-kernel-gp
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-rho_temp-0.25/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ --output-dir experiments/due/ihdp pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-rho_temp-0.25_gumb-False/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ --output-dir experiments/due/ihdp pehe
 ```
 
 #### $\pi$-BALD
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 200 --step-size 10 --warm-start-size 100 --max-acquisitions 38 --acquisition-function pi --temperature 0.25 --gpu-per-trial 0.2 ihdp --root assets/ deep-kernel-gp
+causal-bald active-learning --job-dir experiments/ --num-trials 200 --step-size 10 --warm-start-size 100 --max-acquisitions 38 --acquisition-function pi --temperature 0.25 --use-gumbel False --gpu-per-trial 0.2 ihdp --root assets/ deep-kernel-gp
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-pi_temp-0.25/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ --output-dir experiments/due/ihdp pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-pi_temp-0.25_gumb-False/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ --output-dir experiments/due/ihdp pehe
 ```
 
 #### $\tau$-BALD
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 200 --step-size 10 --warm-start-size 100 --max-acquisitions 38 --acquisition-function tau --temperature 0.25 --gpu-per-trial 0.2 ihdp --root assets/ deep-kernel-gp
+causal-bald active-learning --job-dir experiments/ --num-trials 200 --step-size 10 --warm-start-size 100 --max-acquisitions 38 --acquisition-function tau --temperature 0.25 --use-gumbel False --gpu-per-trial 0.2 ihdp --root assets/ deep-kernel-gp
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-tau_temp-0.25/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ --output-dir experiments/due/ihdp pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-tau_temp-0.25_gumb-False/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ --output-dir experiments/due/ihdp pehe
 ```
 
 #### Random
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 200 --step-size 10 --warm-start-size 100 --max-acquisitions 38 --acquisition-function random --temperature 0.25 --gpu-per-trial 0.2 ihdp --root assets/ deep-kernel-gp
+causal-bald active-learning --job-dir experiments/ --num-trials 200 --step-size 10 --warm-start-size 100 --max-acquisitions 38 --acquisition-function random --temperature 0.25 --use-gumbel False --gpu-per-trial 0.2 ihdp --root assets/ deep-kernel-gp
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-random_temp-0.25/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ --output-dir experiments/due/ihdp pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-random_temp-0.25_gumb-False/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ --output-dir experiments/due/ihdp pehe
 ```
 
 #### Sundin
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 200 --step-size 10 --warm-start-size 100 --max-acquisitions 38 --acquisition-function sundin --temperature 1.0 --gpu-per-trial 0.2 ihdp --root assets/ deep-kernel-gp
+causal-bald active-learning --job-dir experiments/ --num-trials 200 --step-size 10 --warm-start-size 100 --max-acquisitions 38 --acquisition-function sundin --temperature 1.0 --use-gumbel False --gpu-per-trial 0.2 ihdp --root assets/ deep-kernel-gp
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-sundin_temp-1.0/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ --output-dir experiments/due/ihdp pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-100_ma-38_af-sundin_temp-1.0_gumb-False/ihdp/deep_kernel_gp/kernel-Matern32_ip-100-dh-200_do-1_dp-3_ns--1.0_dr-0.1_sn-0.95_lr-0.001_bs-100_ep-500/ --output-dir experiments/due/ihdp pehe
 ```
 
 #### Plot Results
@@ -224,81 +224,81 @@ causal-bald \
 #### Synthetic: $\mu\rho$-BALD
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 40 --step-size 10 --warm-start-size 10 --max-acquisitions 31 --acquisition-function mu-rho --temperature 0.25 --gpu-per-trial 0.2 synthetic deep-kernel-gp --kernel RBF --dim-hidden 100 --num-inducing-points 20 --negative-slope 0.0 --batch-size 200 --dropout-rate 0.2
+causal-bald active-learning --job-dir experiments/ --num-trials 40 --step-size 10 --warm-start-size 10 --max-acquisitions 31 --acquisition-function mu-rho --temperature 0.25 --use-gumbel False --gpu-per-trial 0.2 synthetic deep-kernel-gp --kernel RBF --dim-hidden 100 --num-inducing-points 20 --negative-slope 0.0 --batch-size 200 --dropout-rate 0.2
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-10_ma-31_af-mu-rho_temp-0.25/synthetic/deep_kernel_gp/kernel-RBF_ip-20-dh-100_do-1_dp-3_ns-0.0_dr-0.2_sn-0.95_lr-0.001_bs-200_ep-500/ --output-dir experiments/due/synthetic pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-10_ma-31_af-mu-rho_temp-0.25_gumb-False/synthetic/deep_kernel_gp/kernel-RBF_ip-20-dh-100_do-1_dp-3_ns-0.0_dr-0.2_sn-0.95_lr-0.001_bs-200_ep-500/ --output-dir experiments/due/synthetic pehe
 ```
 
 #### Synthetic: $\mu$-BALD
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 40 --step-size 10 --warm-start-size 10 --max-acquisitions 31 --acquisition-function mu --temperature 0.25 --gpu-per-trial 0.2 synthetic deep-kernel-gp --kernel RBF --dim-hidden 100 --num-inducing-points 20 --negative-slope 0.0 --batch-size 200 --dropout-rate 0.2
+causal-bald active-learning --job-dir experiments/ --num-trials 40 --step-size 10 --warm-start-size 10 --max-acquisitions 31 --acquisition-function mu --temperature 0.25 --use-gumbel False --gpu-per-trial 0.2 synthetic deep-kernel-gp --kernel RBF --dim-hidden 100 --num-inducing-points 20 --negative-slope 0.0 --batch-size 200 --dropout-rate 0.2
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-10_ma-31_af-mu_temp-0.25/synthetic/deep_kernel_gp/kernel-RBF_ip-20-dh-100_do-1_dp-3_ns-0.0_dr-0.2_sn-0.95_lr-0.001_bs-200_ep-500/ --output-dir experiments/due/ihdp pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-10_ma-31_af-mu_temp-0.25_gumb-False/synthetic/deep_kernel_gp/kernel-RBF_ip-20-dh-100_do-1_dp-3_ns-0.0_dr-0.2_sn-0.95_lr-0.001_bs-200_ep-500/ --output-dir experiments/due/ihdp pehe
 ```
 
 #### Synthetic: $\mu\pi$-BALD
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 40 --step-size 10 --warm-start-size 10 --max-acquisitions 31 --acquisition-function mu-pi --temperature 0.25 --gpu-per-trial 0.2 synthetic deep-kernel-gp --kernel RBF --dim-hidden 100 --num-inducing-points 20 --negative-slope 0.0 --batch-size 200 --dropout-rate 0.2
+causal-bald active-learning --job-dir experiments/ --num-trials 40 --step-size 10 --warm-start-size 10 --max-acquisitions 31 --acquisition-function mu-pi --temperature 0.25 --use-gumbel False --gpu-per-trial 0.2 synthetic deep-kernel-gp --kernel RBF --dim-hidden 100 --num-inducing-points 20 --negative-slope 0.0 --batch-size 200 --dropout-rate 0.2
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-10_ma-31_af-mu-pi_temp-0.25/synthetic/deep_kernel_gp/kernel-RBF_ip-20-dh-100_do-1_dp-3_ns-0.0_dr-0.2_sn-0.95_lr-0.001_bs-200_ep-500/ --output-dir experiments/due/synthetic pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-10_ma-31_af-mu-pi_temp-0.25_gumb-False/synthetic/deep_kernel_gp/kernel-RBF_ip-20-dh-100_do-1_dp-3_ns-0.0_dr-0.2_sn-0.95_lr-0.001_bs-200_ep-500/ --output-dir experiments/due/synthetic pehe
 ```
 
 #### Synthetic: $\rho$-BALD
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 40 --step-size 10 --warm-start-size 10 --max-acquisitions 31 --acquisition-function rho --temperature 0.25 --gpu-per-trial 0.2 synthetic deep-kernel-gp --kernel RBF --dim-hidden 100 --num-inducing-points 20 --negative-slope 0.0 --batch-size 200 --dropout-rate 0.2
+causal-bald active-learning --job-dir experiments/ --num-trials 40 --step-size 10 --warm-start-size 10 --max-acquisitions 31 --acquisition-function rho --temperature 0.25 --use-gumbel False --gpu-per-trial 0.2 synthetic deep-kernel-gp --kernel RBF --dim-hidden 100 --num-inducing-points 20 --negative-slope 0.0 --batch-size 200 --dropout-rate 0.2
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-10_ma-31_af-rho_temp-0.25/synthetic/deep_kernel_gp/kernel-RBF_ip-20-dh-100_do-1_dp-3_ns-0.0_dr-0.2_sn-0.95_lr-0.001_bs-200_ep-500/ --output-dir experiments/due/synthetic pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-10_ma-31_af-rho_temp-0.25_gumb-False/synthetic/deep_kernel_gp/kernel-RBF_ip-20-dh-100_do-1_dp-3_ns-0.0_dr-0.2_sn-0.95_lr-0.001_bs-200_ep-500/ --output-dir experiments/due/synthetic pehe
 ```
 
 #### Synthetic: $\pi$-BALD
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 40 --step-size 10 --warm-start-size 10 --max-acquisitions 31 --acquisition-function pi --temperature 0.25 --gpu-per-trial 0.2 synthetic deep-kernel-gp --kernel RBF --dim-hidden 100 --num-inducing-points 20 --negative-slope 0.0 --batch-size 200 --dropout-rate 0.2
+causal-bald active-learning --job-dir experiments/ --num-trials 40 --step-size 10 --warm-start-size 10 --max-acquisitions 31 --acquisition-function pi --temperature 0.25 --use-gumbel False --gpu-per-trial 0.2 synthetic deep-kernel-gp --kernel RBF --dim-hidden 100 --num-inducing-points 20 --negative-slope 0.0 --batch-size 200 --dropout-rate 0.2
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-10_ma-31_af-pi_temp-0.25/synthetic/deep_kernel_gp/kernel-RBF_ip-20-dh-100_do-1_dp-3_ns-0.0_dr-0.2_sn-0.95_lr-0.001_bs-200_ep-500/ --output-dir experiments/due/synthetic pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-10_ma-31_af-pi_temp-0.25_gumb-False/synthetic/deep_kernel_gp/kernel-RBF_ip-20-dh-100_do-1_dp-3_ns-0.0_dr-0.2_sn-0.95_lr-0.001_bs-200_ep-500/ --output-dir experiments/due/synthetic pehe
 ```
 
 #### Synthetic: $\tau$-BALD
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 40 --step-size 10 --warm-start-size 10 --max-acquisitions 31 --acquisition-function tau --temperature 0.25 --gpu-per-trial 0.2 synthetic deep-kernel-gp --kernel RBF --dim-hidden 100 --num-inducing-points 20 --negative-slope 0.0 --batch-size 200 --dropout-rate 0.2
+causal-bald active-learning --job-dir experiments/ --num-trials 40 --step-size 10 --warm-start-size 10 --max-acquisitions 31 --acquisition-function tau --temperature 0.25 --use-gumbel False --gpu-per-trial 0.2 synthetic deep-kernel-gp --kernel RBF --dim-hidden 100 --num-inducing-points 20 --negative-slope 0.0 --batch-size 200 --dropout-rate 0.2
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-10_ma-31_af-tau_temp-0.25/synthetic/deep_kernel_gp/kernel-RBF_ip-20-dh-100_do-1_dp-3_ns-0.0_dr-0.2_sn-0.95_lr-0.001_bs-200_ep-500/ --output-dir experiments/due/synthetic pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-10_ma-31_af-tau_temp-0.25_gumb-False/synthetic/deep_kernel_gp/kernel-RBF_ip-20-dh-100_do-1_dp-3_ns-0.0_dr-0.2_sn-0.95_lr-0.001_bs-200_ep-500/ --output-dir experiments/due/synthetic pehe
 ```
 
 #### Synthetic: Random
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 40 --step-size 10 --warm-start-size 10 --max-acquisitions 31 --acquisition-function random --temperature 0.25 --gpu-per-trial 0.2 synthetic deep-kernel-gp --kernel RBF --dim-hidden 100 --num-inducing-points 20 --negative-slope 0.0 --batch-size 200 --dropout-rate 0.2
+causal-bald active-learning --job-dir experiments/ --num-trials 40 --step-size 10 --warm-start-size 10 --max-acquisitions 31 --acquisition-function random --temperature 0.25 --use-gumbel False --gpu-per-trial 0.2 synthetic deep-kernel-gp --kernel RBF --dim-hidden 100 --num-inducing-points 20 --negative-slope 0.0 --batch-size 200 --dropout-rate 0.2
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-10_ma-31_af-random_temp-0.25/synthetic/deep_kernel_gp/kernel-RBF_ip-20-dh-100_do-1_dp-3_ns-0.0_dr-0.2_sn-0.95_lr-0.001_bs-200_ep-500/ --output-dir experiments/due/synthetic pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-10_ma-31_af-random_temp-0.25_gumb-False/synthetic/deep_kernel_gp/kernel-RBF_ip-20-dh-100_do-1_dp-3_ns-0.0_dr-0.2_sn-0.95_lr-0.001_bs-200_ep-500/ --output-dir experiments/due/synthetic pehe
 ```
 
 #### Synthetic: Sundin
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 40 --step-size 10 --warm-start-size 10 --max-acquisitions 31 --acquisition-function sundin --temperature 1.0 --gpu-per-trial 0.2 synthetic deep-kernel-gp --kernel RBF --dim-hidden 100 --num-inducing-points 20 --negative-slope 0.0 --batch-size 200 --dropout-rate 0.2
+causal-bald active-learning --job-dir experiments/ --num-trials 40 --step-size 10 --warm-start-size 10 --max-acquisitions 31 --acquisition-function sundin --temperature 1.0 --use-gumbel False --gpu-per-trial 0.2 synthetic deep-kernel-gp --kernel RBF --dim-hidden 100 --num-inducing-points 20 --negative-slope 0.0 --batch-size 200 --dropout-rate 0.2
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-10_ma-31_af-sundin_temp-1.0/synthetic/deep_kernel_gp/kernel-RBF_ip-20-dh-100_do-1_dp-3_ns-0.0_dr-0.2_sn-0.95_lr-0.001_bs-200_ep-500/ --output-dir experiments/due/synthetic pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-10_ws-10_ma-31_af-sundin_temp-1.0_gumb-False/synthetic/deep_kernel_gp/kernel-RBF_ip-20-dh-100_do-1_dp-3_ns-0.0_dr-0.2_sn-0.95_lr-0.001_bs-200_ep-500/ --output-dir experiments/due/synthetic pehe
 ```
 
 #### Synthetic: Plot Results
@@ -325,81 +325,81 @@ causal-bald \
 #### CMNIST: $\mu\rho$-BALD
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 10 --step-size 50 --warm-start-size 250 --max-acquisitions 56 --acquisition-function mu-rho --temperature 0.25 --gpu-per-trial 0.5 cmnist --root assets/ deep-kernel-gp --kernel RBF --depth 2 --dropout-rate 0.05 --spectral-norm 3.0 --batch-size 64
+causal-bald active-learning --job-dir experiments/ --num-trials 10 --step-size 50 --warm-start-size 250 --max-acquisitions 56 --acquisition-function mu-rho --temperature 0.25 --use-gumbel False --gpu-per-trial 0.5 cmnist --root assets/ deep-kernel-gp --kernel RBF --depth 2 --dropout-rate 0.05 --spectral-norm 3.0 --batch-size 64
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-50_ws-250_ma-56_af-mu-rho_temp-0.25/cmnist/deep_kernel_gp/kernel-RBF_ip-100-dh-200_do-1_dp-2_ns--1.0_dr-0.05_sn-3.0_lr-0.001_bs-64_ep-500/ --output-dir experiments/due/cmnist pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-50_ws-250_ma-56_af-mu-rho_temp-0.25_gumb-False/cmnist/deep_kernel_gp/kernel-RBF_ip-100-dh-200_do-1_dp-2_ns--1.0_dr-0.05_sn-3.0_lr-0.001_bs-64_ep-500/ --output-dir experiments/due/cmnist pehe
 ```
 
 #### CMNIST: $\mu$-BALD
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 10 --step-size 50 --warm-start-size 250 --max-acquisitions 56 --acquisition-function mu --temperature 0.25 --gpu-per-trial 0.5 cmnist --root assets/ deep-kernel-gp --kernel RBF --depth 2 --dropout-rate 0.05 --spectral-norm 3.0 --batch-size 64
+causal-bald active-learning --job-dir experiments/ --num-trials 10 --step-size 50 --warm-start-size 250 --max-acquisitions 56 --acquisition-function mu --temperature 0.25 --use-gumbel False --gpu-per-trial 0.5 cmnist --root assets/ deep-kernel-gp --kernel RBF --depth 2 --dropout-rate 0.05 --spectral-norm 3.0 --batch-size 64
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-50_ws-250_ma-56_af-mu_temp-0.25/cmnist/deep_kernel_gp/kernel-RBF_ip-100-dh-200_do-1_dp-2_ns--1.0_dr-0.05_sn-3.0_lr-0.001_bs-64_ep-500/ --output-dir experiments/due/ihdp pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-50_ws-250_ma-56_af-mu_temp-0.25_gumb-False/cmnist/deep_kernel_gp/kernel-RBF_ip-100-dh-200_do-1_dp-2_ns--1.0_dr-0.05_sn-3.0_lr-0.001_bs-64_ep-500/ --output-dir experiments/due/ihdp pehe
 ```
 
 #### CMNIST: $\mu\pi$-BALD
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 10 --step-size 50 --warm-start-size 250 --max-acquisitions 56 --acquisition-function mu-pi --temperature 0.25 --gpu-per-trial 0.5 cmnist --root assets/ deep-kernel-gp --kernel RBF --depth 2 --dropout-rate 0.05 --spectral-norm 3.0 --batch-size 64
+causal-bald active-learning --job-dir experiments/ --num-trials 10 --step-size 50 --warm-start-size 250 --max-acquisitions 56 --acquisition-function mu-pi --temperature 0.25 --use-gumbel False --gpu-per-trial 0.5 cmnist --root assets/ deep-kernel-gp --kernel RBF --depth 2 --dropout-rate 0.05 --spectral-norm 3.0 --batch-size 64
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-50_ws-250_ma-56_af-mu-pi_temp-0.25/cmnist/deep_kernel_gp/kernel-RBF_ip-100-dh-200_do-1_dp-2_ns--1.0_dr-0.05_sn-3.0_lr-0.001_bs-64_ep-500/ --output-dir experiments/due/cmnist pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-50_ws-250_ma-56_af-mu-pi_temp-0.25_gumb-False/cmnist/deep_kernel_gp/kernel-RBF_ip-100-dh-200_do-1_dp-2_ns--1.0_dr-0.05_sn-3.0_lr-0.001_bs-64_ep-500/ --output-dir experiments/due/cmnist pehe
 ```
 
 #### CMNIST: $\rho$-BALD
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 10 --step-size 50 --warm-start-size 250 --max-acquisitions 56 --acquisition-function rho --temperature 0.25 --gpu-per-trial 0.5 cmnist --root assets/ deep-kernel-gp --kernel RBF --depth 2 --dropout-rate 0.05 --spectral-norm 3.0 --batch-size 64
+causal-bald active-learning --job-dir experiments/ --num-trials 10 --step-size 50 --warm-start-size 250 --max-acquisitions 56 --acquisition-function rho --temperature 0.25 --use-gumbel False --gpu-per-trial 0.5 cmnist --root assets/ deep-kernel-gp --kernel RBF --depth 2 --dropout-rate 0.05 --spectral-norm 3.0 --batch-size 64
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-50_ws-250_ma-56_af-rho_temp-0.25/cmnist/deep_kernel_gp/kernel-RBF_ip-100-dh-200_do-1_dp-2_ns--1.0_dr-0.05_sn-3.0_lr-0.001_bs-64_ep-500/ --output-dir experiments/due/cmnist pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-50_ws-250_ma-56_af-rho_temp-0.25_gumb-False/cmnist/deep_kernel_gp/kernel-RBF_ip-100-dh-200_do-1_dp-2_ns--1.0_dr-0.05_sn-3.0_lr-0.001_bs-64_ep-500/ --output-dir experiments/due/cmnist pehe
 ```
 
 #### CMNIST: $\pi$-BALD
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 10 --step-size 50 --warm-start-size 250 --max-acquisitions 56 --acquisition-function pi --temperature 0.25 --gpu-per-trial 0.5 cmnist --root assets/ deep-kernel-gp --kernel RBF --depth 2 --dropout-rate 0.05 --spectral-norm 3.0 --batch-size 64
+causal-bald active-learning --job-dir experiments/ --num-trials 10 --step-size 50 --warm-start-size 250 --max-acquisitions 56 --acquisition-function pi --temperature 0.25 --use-gumbel False --gpu-per-trial 0.5 cmnist --root assets/ deep-kernel-gp --kernel RBF --depth 2 --dropout-rate 0.05 --spectral-norm 3.0 --batch-size 64
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-50_ws-250_ma-56_af-pi_temp-0.25/cmnist/deep_kernel_gp/kernel-RBF_ip-100-dh-200_do-1_dp-2_ns--1.0_dr-0.05_sn-3.0_lr-0.001_bs-64_ep-500/ --output-dir experiments/due/cmnist pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-50_ws-250_ma-56_af-pi_temp-0.25_gumb-False/cmnist/deep_kernel_gp/kernel-RBF_ip-100-dh-200_do-1_dp-2_ns--1.0_dr-0.05_sn-3.0_lr-0.001_bs-64_ep-500/ --output-dir experiments/due/cmnist pehe
 ```
 
 #### CMNIST: $\tau$-BALD
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 10 --step-size 50 --warm-start-size 250 --max-acquisitions 56 --acquisition-function tau --temperature 0.25 --gpu-per-trial 0.5 cmnist --root assets/ deep-kernel-gp --kernel RBF --depth 2 --dropout-rate 0.05 --spectral-norm 3.0 --batch-size 64
+causal-bald active-learning --job-dir experiments/ --num-trials 10 --step-size 50 --warm-start-size 250 --max-acquisitions 56 --acquisition-function tau --temperature 0.25 --use-gumbel False --gpu-per-trial 0.5 cmnist --root assets/ deep-kernel-gp --kernel RBF --depth 2 --dropout-rate 0.05 --spectral-norm 3.0 --batch-size 64
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-50_ws-250_ma-56_af-tau_temp-0.25/cmnist/deep_kernel_gp/kernel-RBF_ip-100-dh-200_do-1_dp-2_ns--1.0_dr-0.05_sn-3.0_lr-0.001_bs-64_ep-500/ --output-dir experiments/due/cmnist pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-50_ws-250_ma-56_af-tau_temp-0.25_gumb-False/cmnist/deep_kernel_gp/kernel-RBF_ip-100-dh-200_do-1_dp-2_ns--1.0_dr-0.05_sn-3.0_lr-0.001_bs-64_ep-500/ --output-dir experiments/due/cmnist pehe
 ```
 
 #### CMNIST: Random
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 10 --step-size 50 --warm-start-size 250 --max-acquisitions 56 --acquisition-function random --temperature 0.25 --gpu-per-trial 0.5 cmnist --root assets/ deep-kernel-gp --kernel RBF --depth 2 --dropout-rate 0.05 --spectral-norm 3.0 --batch-size 64
+causal-bald active-learning --job-dir experiments/ --num-trials 10 --step-size 50 --warm-start-size 250 --max-acquisitions 56 --acquisition-function random --temperature 0.25 --use-gumbel False --gpu-per-trial 0.5 cmnist --root assets/ deep-kernel-gp --kernel RBF --depth 2 --dropout-rate 0.05 --spectral-norm 3.0 --batch-size 64
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-50_ws-250_ma-56_af-random_temp-0.25/cmnist/deep_kernel_gp/kernel-RBF_ip-100-dh-200_do-1_dp-2_ns--1.0_dr-0.05_sn-3.0_lr-0.001_bs-64_ep-500/ --output-dir experiments/due/cmnist pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-50_ws-250_ma-56_af-random_temp-0.25_gumb-False/cmnist/deep_kernel_gp/kernel-RBF_ip-100-dh-200_do-1_dp-2_ns--1.0_dr-0.05_sn-3.0_lr-0.001_bs-64_ep-500/ --output-dir experiments/due/cmnist pehe
 ```
 
 #### CMNIST: Sundin
 
 ```.sh
-causal-bald active-learning --job-dir experiments/ --num-trials 10 --step-size 50 --warm-start-size 250 --max-acquisitions 56 --acquisition-function sundin --temperature 1.0 --gpu-per-trial 0.5 cmnist --root assets/ deep-kernel-gp --kernel RBF --depth 2 --dropout-rate 0.05 --spectral-norm 3.0 --batch-size 64
+causal-bald active-learning --job-dir experiments/ --num-trials 10 --step-size 50 --warm-start-size 250 --max-acquisitions 56 --acquisition-function sundin --temperature 1.0 --use-gumbel False --gpu-per-trial 0.5 cmnist --root assets/ deep-kernel-gp --kernel RBF --depth 2 --dropout-rate 0.05 --spectral-norm 3.0 --batch-size 64
 ```
 
 ```.sh
-causal-bald evaluate --experiment-dir experiments/active_learning/ss-50_ws-250_ma-56_af-sundin_temp-1.0/cmnist/deep_kernel_gp/kernel-RBF_ip-100-dh-200_do-1_dp-2_ns--1.0_dr-0.05_sn-3.0_lr-0.001_bs-64_ep-500/ --output-dir experiments/due/cmnist pehe
+causal-bald evaluate --experiment-dir experiments/active_learning/ss-50_ws-250_ma-56_af-sundin_temp-1.0_gumb-False/cmnist/deep_kernel_gp/kernel-RBF_ip-100-dh-200_do-1_dp-2_ns--1.0_dr-0.05_sn-3.0_lr-0.001_bs-64_ep-500/ --output-dir experiments/due/cmnist pehe
 ```
 
 #### CMNIST: Plot Results
