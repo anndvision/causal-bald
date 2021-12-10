@@ -1,6 +1,6 @@
 import json
 import numpy as np
-import scipy.stats 
+import scipy.stats
 
 from copy import deepcopy
 
@@ -43,42 +43,47 @@ def active_learner(model_name, config, experiment_dir, trial):
     warm_start_size = config.get("warm_start_size")
     max_acquisitions = config.get("max_acquisitions")
     temperature = config.get("temperature")
+    use_gumbel = config.get("use_gumbel")
     for i in range(max_acquisitions):
+        batch_size = warm_start_size if i == 0 else step_size
         acquisition_dir = trial_dir / f"acquisition-{i:03d}"
         acquired_path = acquisition_dir / "aquired.json"
         if not acquired_path.exists():
-            # Predict pool set
-            mu_0, mu_1 = utils.PREDICT_FUNCTIONS[model_name](
-                dataset=ds_active.dataset,
-                job_dir=trial_dir / f"acquisition-{i-1:03d}",
-                config=config,
-            )
-            # Get acquisition scores
-            scores = (
-                acquisition_function(
-                    mu_0=mu_0,
-                    mu_1=mu_1,
-                    t=ds_active.dataset.t,
-                    pt=pt,
-                    temperature=temperature if temperature > 0.0 else 1.0,
-                )
-            )[ds_active.pool_dataset.indices]
-            # Sample acquired points
-            # Use the Gumble-Top-k trick from https://arxiv.org/abs/1903.06059
-            # p = np.log(scores) + scipy.stats.gumbel_r(loc=0, scale=1, size=len(scores), random_state=None)
-            # batch_size = warm_start_size if i == 0 else step_size              
-            # idx = np.argpartition(p, -batchsize)[-batchsize:]
-            if temperature > 0.0:
-                p = scores / scores.sum()
-                idx = np.random.choice(
-                    range(len(p)),
-                    replace=False,
-                    p=p,
-                    size=warm_start_size if i == 0 else step_size,
-                )
+            if i == 0:
+                scores = acquisitions.random(
+                    mu_0=None, mu_1=None, t=ds_active.dataset.t, pt=pt, temperature=None
+                )[ds_active.pool_dataset.indices]
             else:
-                sz = warm_start_size if i == 0 else step_size
-                idx = np.argsort(scores)[-sz:]
+                # Predict pool set
+                mu_0, mu_1 = utils.PREDICT_FUNCTIONS[model_name](
+                    dataset=ds_active.dataset,
+                    job_dir=trial_dir / f"acquisition-{i-1:03d}",
+                    config=config,
+                )
+                # Get acquisition scores
+                scores = (
+                    acquisition_function(
+                        mu_0=mu_0,
+                        mu_1=mu_1,
+                        t=ds_active.dataset.t,
+                        pt=pt,
+                        temperature=temperature,
+                    )
+                )[ds_active.pool_dataset.indices]
+            if temperature > 0.0:
+                if use_gumbel:
+                    p = scores + scipy.stats.gumbel_r.rvs(
+                        loc=0, scale=1, size=len(scores), random_state=None,
+                    )
+                    idx = np.argpartition(p, -batch_size)[-batch_size:]
+                else:
+                    scores = np.exp(scores)
+                    p = scores / scores.sum()
+                    idx = np.random.choice(
+                        range(len(p)), replace=False, p=p, size=batch_size,
+                    )
+            else:
+                idx = np.argsort(scores)[-batch_size:]
             ds_active.acquire(idx)
             # Train model
             utils.TRAIN_FUNCTIONS[model_name](

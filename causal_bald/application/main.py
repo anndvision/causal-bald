@@ -179,6 +179,12 @@ def train(
     help="acquistion function tempurature, default=1.0",
 )
 @click.option(
+    "--use-gumbel",
+    default=True,
+    type=bool,
+    help="Use Gumbel Top K, from https://arxiv.org/abs/1903.06059 default=True",
+)
+@click.option(
     "--gpu-per-trial",
     default=0.0,
     type=float,
@@ -210,6 +216,7 @@ def active_learning(
     max_acquisitions,
     acquisition_function,
     temperature,
+    use_gumbel,
     gpu_per_trial,
     cpu_per_trial,
     object_memory_store,
@@ -226,7 +233,7 @@ def active_learning(
     job_dir = (
         Path(job_dir)
         / "active_learning"
-        / f"ss-{step_size}_ws-{warm_start_size}_ma-{max_acquisitions}_af-{acquisition_function}_temp-{temperature}"
+        / f"ss-{step_size}_ws-{warm_start_size}_ma-{max_acquisitions}_af-{acquisition_function}_temp-{temperature}_gumb-{use_gumbel}"
     )
     context.obj.update(
         {
@@ -237,6 +244,7 @@ def active_learning(
             "max_acquisitions": max_acquisitions,
             "acquisition_function": acquisition_function,
             "temperature": temperature,
+            "use_gumbel": use_gumbel,
             "gpu_per_trial": gpu_per_trial,
             "cpu_per_trial": cpu_per_trial,
             "verbose": verbose,
