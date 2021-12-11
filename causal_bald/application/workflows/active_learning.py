@@ -67,7 +67,7 @@ def active_learner(model_name, config, experiment_dir, trial):
                         mu_1=mu_1,
                         t=ds_active.dataset.t,
                         pt=pt,
-                        temperature=temperature,
+                        temperature=temperature if temperature > 0.0 else 1.0,
                     )
                 )[ds_active.pool_dataset.indices]
             if temperature > 0.0:
