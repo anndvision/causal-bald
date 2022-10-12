@@ -1,4 +1,4 @@
-# causal-bald
+# causal-bald 🧑‍🦲
 
 | **[Abstract](#abstract)**
 | **[Installation](#installation)**
