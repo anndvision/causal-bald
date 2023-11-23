@@ -21,6 +21,7 @@ $ git clone git@github.com:[anon]/causal-bald.git
 $ cd causal-bald
 $ conda env create -f environment.yml
 $ conda activate causal-bald
+$ pip install .
 ```
 [Optional] For developer mode
 ```.sh
